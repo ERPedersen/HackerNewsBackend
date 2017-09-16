@@ -1,6 +1,6 @@
 <?php
 
-namespace Hackernews\Controllers;
+namespace Hackernews\Http\Controllers;
 
 use Hackernews\Example;
 use Slim\Http\Request;
