@@ -11,7 +11,7 @@ class ExampleTest extends \PHPUnit_Framework_TestCase
     public function testReturnsCorrectOutput()
     {
         $this->example = new Example();
-        self::assertEquals($this->example->hello(), "Hello Worlde");
+        self::assertEquals($this->example->hello(), "Hello World");
     }
 
     public function testShouldNotReturnLowercase()
