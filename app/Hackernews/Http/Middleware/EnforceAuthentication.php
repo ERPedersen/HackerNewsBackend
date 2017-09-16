@@ -12,8 +12,19 @@ use Hackernews\Services\TokenService;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class Authentication
+/**
+ * Class EnforceAuthentication
+ *
+ * @package Hackernews\Http\Middleware
+ */
+class EnforceAuthentication
 {
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @param $next
+     * @return \Slim\Http\Response
+     */
     function __invoke(Request $request, Response $response, $next)
     {
         if ($request->hasHeader("Authorization")) {

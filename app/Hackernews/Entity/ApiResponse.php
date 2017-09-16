@@ -4,6 +4,11 @@ namespace Hackernews\Entity;
 
 use JsonSerializable;
 
+/**
+ * Class ApiResponse
+ *
+ * @package Hackernews\Entity
+ */
 class ApiResponse implements JsonSerializable
 {
     /**
@@ -99,7 +104,7 @@ class ApiResponse implements JsonSerializable
         $object['code'] = $this->code;
         $object['data'] = $this->data;
 
-        if ($this->code !== 0 && ! empty($message)) {
+        if ($this->code !== 0) {
             $object['message'] = $this->message;
         }
 

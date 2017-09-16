@@ -8,6 +8,11 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Token;
 
+/**
+ * Class TokenService
+ *
+ * @package Hackernews\Services
+ */
 class TokenService
 {
     /**
@@ -32,6 +37,10 @@ class TokenService
         return ($token->verify($this->getSigner(), getenv("JWT_SECRET")));
     }
 
+    /**
+     * @param array $claims
+     * @return string
+     */
     public function sign(array $claims)
     {
         $builder = new Builder();
