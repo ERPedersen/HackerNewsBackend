@@ -1,4 +1,6 @@
 # HackerNewsBackend
+[![Build Status](https://travis-ci.org/ERPedersen/HackerNewsBackend.svg?branch=development)](https://travis-ci.org/ERPedersen/HackerNewsBackend)
+
 This is the backend for the Hacker News Clone project.
 
 ## Contributors
