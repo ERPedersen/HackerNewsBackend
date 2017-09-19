@@ -16,4 +16,4 @@ sed -i -e 's/AllowOverride None/AllowOverride All/g' /etc/httpd/conf/httpd.conf
 cd /home/ec2-user/
 curl -sS https://getcomposer.org/installer | sudo php
 mv composer.phar /usr/local/bin/composer
-ln -s /usr/local/bin/composer /usr/bin/composer
+ln -sf /usr/local/bin/composer /usr/bin/composer
