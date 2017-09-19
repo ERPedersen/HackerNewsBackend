@@ -1,5 +1,4 @@
 #!/bin/bash
-
 yum install -y httpd
 yum install -y php70
 yum install -y php70-gd
@@ -13,6 +12,5 @@ sed -i -e 's/index\.html/index\.php index\.html/g' /etc/httpd/conf/httpd.conf
 sed -i -e 's/AllowOverride None/AllowOverride All/g' /etc/httpd/conf/httpd.conf
 
 cd /home/ec2-user/
-curl -sS https://getcomposer.org/installer | sudo php
+curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
-ln -sf /usr/local/bin/composer /usr/bin/composer
