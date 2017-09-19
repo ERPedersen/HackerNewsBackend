@@ -1,5 +1,5 @@
 #!/bin/bash
-yum install -y httpd
+yum install -y httpd24
 yum install -y php70
 yum install -y php70-mbstring
 yum install -y php70-mysqli
