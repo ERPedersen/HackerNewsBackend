@@ -1,12 +1,7 @@
 #!/bin/bash
 yum install -y httpd
 yum install -y php70
-yum install -y php70-gd
-yum install -y php70-imap
-yum install -y php70-mbstring
 yum install -y php70-mysqlnd
-yum install -y php70-opcache
-yum install -y php70-pecl-apcu
 
 sed -i -e 's/index\.html/index\.php index\.html/g' /etc/httpd/conf/httpd.conf
 sed -i -e 's/AllowOverride None/AllowOverride All/g' /etc/httpd/conf/httpd.conf
