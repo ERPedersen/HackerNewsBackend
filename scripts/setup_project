@@ -2,6 +2,3 @@
 cd /var/www/html/
 composer install
 chmod -R 755 /var/www/html/
-
-rm -f /etc/httpd/conf/httpd.conf
-mv /var/www/html/conf/httpd.conf /etc/httpd/conf/httpd.conf

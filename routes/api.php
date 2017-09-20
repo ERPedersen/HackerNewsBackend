@@ -10,6 +10,8 @@ use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 
+$app->get("/", IndexController::class.':index');
+
 $app->group("/api", function () use ($app) {
     $app->get("", IndexController::class.':index');
     $app->post("/login", AuthController::class.':authenticate');
