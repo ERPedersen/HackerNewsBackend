@@ -1,7 +1,12 @@
-Options +FollowSymLinks
+Options +FollowSymLinks -Indexes
 RewriteEngine On
 RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ /index.php [L]
+
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
