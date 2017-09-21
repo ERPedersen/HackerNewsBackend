@@ -12,6 +12,9 @@ hooks:
     - location: scripts/setup_project
       timeout: 300
       runas: root
+    - location: scripts/setup_environment
+      timeout: 300
+      runas: root
     - location: scripts/start_server
       timeout: 300
       runas: root
