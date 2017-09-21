@@ -25,6 +25,9 @@ class AuthController
     {
         $json = $request->getParsedBody();
 
+        $email = $json['email'];
+        $password = $json['password'];
+
         try {
             $userFacade = new UserFacade();
             $user = $userFacade->verifyUser($email, $password);
