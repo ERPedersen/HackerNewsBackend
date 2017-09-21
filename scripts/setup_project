@@ -1,4 +1,25 @@
 #!/bin/bash
 cd /var/www/html/
+
+touch /var/www/html/.env
+
+db_host = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_HOST --with-decryption --query Parameters[0].Value)
+db_host=`echo $db_host | sed -e 's/^"//' -e 's/"$//'`
+
+db_user = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_USER --with-decryption --query Parameters[0].Value)
+db_user=`echo $db_user | sed -e 's/^"//' -e 's/"$//'`
+
+db_password = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_PASSWORD --with-decryption --query Parameters[0].Value)
+db_password=`echo $db_password | sed -e 's/^"//' -e 's/"$//'`
+
+db_schema = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_SCHEMA --with-decryption --query Parameters[0].Value)
+db_schema=`echo $db_schema | sed -e 's/^"//' -e 's/"$//'`
+
+echo "DB_HOST=$(db_host)" >> /var/www/html/.env
+echo "DB_USER=$(db_host)" >> /var/www/html/.env
+echo "DB_PASS=$(db_host)" >> /var/www/html/.env
+echo "DB_SCHEMA=$(db_host)" >> /var/www/html/.env
+
 composer install
 chmod -R 755 /var/www/html/
+
