@@ -9,8 +9,8 @@ db_schema = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB
 jwt_secret = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_JWT_SECRET --with-decryption --query Parameters[0].Value)
 test = $(echo "test")
 
-echo "DB_HOST=$test" >> /var/www/html/.env
-echo "DB_USER=$db_host" >> /var/www/html/.env
-echo "DB_PASS=$db_host" >> /var/www/html/.env
-echo "DB_SCHEMA=$db_host" >> /var/www/html/.env
+echo "DB_HOST=$db_host" >> /var/www/html/.env
+echo "DB_USER=$db_user" >> /var/www/html/.env
+echo "DB_PASS=$db_pass" >> /var/www/html/.env
+echo "DB_SCHEMA=$test" >> /var/www/html/.env
 echo "JWT_SECRET=$jwt_secret" >> /var/www/html/.env
