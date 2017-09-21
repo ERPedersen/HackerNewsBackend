@@ -2,15 +2,14 @@
 
 touch /var/www/html/.env
 
-db_host = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_HOST --with-decryption --query Parameters[0].Value)
-db_user = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_USER --with-decryption --query Parameters[0].Value)
-db_password = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_PASSWORD --with-decryption --query Parameters[0].Value)
-db_schema = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_SCHEMA --with-decryption --query Parameters[0].Value)
-jwt_secret = $(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_JWT_SECRET --with-decryption --query Parameters[0].Value)
-test = $(echo "test")
+db_host=$(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_HOST --with-decryption --query Parameters[0].Value)
+db_user=$(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_USER --with-decryption --query Parameters[0].Value)
+db_password=$(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_PASSWORD --with-decryption --query Parameters[0].Value)
+db_schema=$(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_DB_SCHEMA --with-decryption --query Parameters[0].Value)
+jwt_secret=$(aws ssm get-parameters --region eu-central-1 --names HACKERNEWS_JWT_SECERET --with-decryption --query Parameters[0].Value)
 
 echo "DB_HOST=$db_host" >> /var/www/html/.env
 echo "DB_USER=$db_user" >> /var/www/html/.env
-echo "DB_PASS=$db_pass" >> /var/www/html/.env
-echo "DB_SCHEMA=$test" >> /var/www/html/.env
+echo "DB_PASS=$db_password" >> /var/www/html/.env
+echo "DB_SCHEMA=$db_schema" >> /var/www/html/.env
 echo "JWT_SECRET=$jwt_secret" >> /var/www/html/.env
