@@ -7,6 +7,8 @@ use Hackernews\Access\IUserAccess;
 use Hackernews\Access\UserAccess;
 use Hackernews\Access\ICreateUser;
 use Hackernews\Access\CreateUser;
+use Hackernews\Exceptions\DuplicateUserException;
+use Hackernews\Services\TokenService;
 
 /**
  * Class UserFacade
@@ -19,10 +21,6 @@ class UserFacade implements IUserFacade
      * @var \Hackernews\Access\IUserAccess
      */
     private $access;
-    /**
-     * @var \Hackernews\Access\ICreateUser
-     */
-    private $create;
 
     /**
      * UserFacade constructor.
@@ -30,22 +28,11 @@ class UserFacade implements IUserFacade
      * Will construct the UserFacade with a default UserAccess and CreateUser,
      * but allows for dependency injection if needed-
      *
-     * @param IUserAccess|null $access
-     * @param ICreateUser|null $create
+     * @param \Hackernews\Access\IUserAccess|null $access
      */
-    function __construct(IUserAccess $access = null, ICreateUser $create = null)
+    function __construct(IUserAccess $access = null)
     {
-        if ($access === null) {
-            $this->access = new UserAccess();
-        } else {
-            $this->access = $access;
-        }
-
-        if ($create === null) {
-            $this->create = new CreateUser();
-        } else {
-            $this->create = $create;
-        }
+        $this->access = $access ? $access : new UserAccess();
     }
 
     /**
@@ -57,12 +44,20 @@ class UserFacade implements IUserFacade
      * @param String $password
      * @throws \Exception
      * @internal param int $id
-     * @return \Hackernews\Entity\User
+     * @return String
      */
     public function verifyUser(String $username, String $password)
     {
         try {
-            return $this->access->verifyUser($username, $password);
+            $user = $this->access->verifyUser($username, $password);
+            $tokenService = new TokenService();
+
+            return $tokenService->sign([
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'alias' => $user->getAlias(),
+                'karma' => $user->getKarma(),
+            ]);
         } catch (Exception $e) {
             throw $e;
         }
@@ -72,13 +67,27 @@ class UserFacade implements IUserFacade
      * @param String $email
      * @param String $password
      * @param String $alias
+     * @return mixed|string
      * @throws Exception
-     * @return \Hackernews\Entity\User
      */
     public function createUser(String $email, String $password, String $alias)
     {
         try {
-            return $this->create->createUser($email, $password, $alias);
+            $this->access->createUser($email, $password, $alias);
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        try {
+            $user = $this->access->getUserByEmail($email);
+            $tokenService = new TokenService();
+
+            return $tokenService->sign([
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'alias' => $user->getAlias(),
+                'karma' => $user->getKarma(),
+            ]);
         } catch (Exception $e) {
             throw $e;
         }
