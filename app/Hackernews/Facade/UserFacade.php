@@ -5,6 +5,10 @@ namespace Hackernews\Facade;
 use Exception;
 use Hackernews\Access\IUserAccess;
 use Hackernews\Access\UserAccess;
+use Hackernews\Access\ICreateUser;
+use Hackernews\Access\CreateUser;
+use Hackernews\Exceptions\DuplicateUserException;
+use Hackernews\Services\TokenService;
 
 /**
  * Class UserFacade
@@ -21,18 +25,14 @@ class UserFacade implements IUserFacade
     /**
      * UserFacade constructor.
      *
-     * Will construct the UserFacade with a default UserAccess,
+     * Will construct the UserFacade with a default UserAccess and CreateUser,
      * but allows for dependency injection if needed-
      *
-     * @param IUserAccess|null $access
+     * @param \Hackernews\Access\IUserAccess|null $access
      */
     function __construct(IUserAccess $access = null)
     {
-        if ($access === null) {
-            $this->access = new UserAccess();
-        } else {
-            $this->access = $access;
-        }
+        $this->access = $access ? $access : new UserAccess();
     }
 
     /**
@@ -44,12 +44,50 @@ class UserFacade implements IUserFacade
      * @param String $password
      * @throws \Exception
      * @internal param int $id
-     * @return \Hackernews\Entity\User
+     * @return String
      */
     public function verifyUser(String $username, String $password)
     {
         try {
-            return $this->access->verifyUser($username, $password);
+            $user = $this->access->verifyUser($username, $password);
+            $tokenService = new TokenService();
+
+            return $tokenService->sign([
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'alias' => $user->getAlias(),
+                'karma' => $user->getKarma(),
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param String $email
+     * @param String $password
+     * @param String $alias
+     * @return mixed|string
+     * @throws Exception
+     */
+    public function createUser(String $email, String $password, String $alias)
+    {
+        try {
+            $this->access->createUser($email, $password, $alias);
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        try {
+            $user = $this->access->getUserByEmail($email);
+            $tokenService = new TokenService();
+
+            return $tokenService->sign([
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'alias' => $user->getAlias(),
+                'karma' => $user->getKarma(),
+            ]);
         } catch (Exception $e) {
             throw $e;
         }
