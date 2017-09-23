@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /var/www/html/
+composer install
+chmod -R 755 /var/www/html/
