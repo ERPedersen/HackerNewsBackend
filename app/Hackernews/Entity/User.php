@@ -2,22 +2,24 @@
 
 namespace Hackernews\Entity;
 
+use JsonSerializable;
+
 /**
  * Class User
  *
  * @package Hackernews\Entity
  */
-class User
+class User implements JsonSerializable
 {
     /**
-     * @var String
+     * @var int
      */
-    private $email;
+    private $id;
 
     /**
      * @var String
      */
-    private $password;
+    private $alias;
 
     /**
      * @var int
@@ -27,108 +29,108 @@ class User
     /**
      * @var String
      */
-    private $firstName;
-
-    /**
-     * @var String
-     */
-    private $lastName;
+    private $email;
 
     /**
      * User constructor.
      *
-     * @param $email
-     * @param $password
-     * @param $karma
-     * @param $firstName
-     * @param $lastName
+     * @param int $id
+     * @param String $email
+     * @param int $karma
+     * @param String $alias
      */
-    public function __construct(String $email, String $password = null, int $karma = 0, String $firstName = null, String $lastName = null)
+    public function __construct($id, $alias, $karma, $email = null)
     {
-        $this->email = $email;
-        $this->password = $password;
+        $this->id = $id;
         $this->karma = $karma;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param mixed $email
-     */
-    public function setEmail($email)
-    {
+        $this->alias = $alias;
         $this->email = $email;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getPassword()
+    public function getId(): int
     {
-        return $this->password;
+        return $this->id;
     }
 
     /**
-     * @param mixed $password
+     * @param int $id
      */
-    public function setPassword($password)
+    public function setId(int $id)
     {
-        $this->password = $password;
+        $this->id = $id;
     }
 
     /**
-     * @return mixed
+     * @return String
      */
-    public function getKarma()
+    public function getAlias(): String
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @param String $alias
+     */
+    public function setAlias(String $alias)
+    {
+        $this->alias = $alias;
+    }
+
+    /**
+     * @return int
+     */
+    public function getKarma(): int
     {
         return $this->karma;
     }
 
     /**
-     * @param mixed $karma
+     * @param int $karma
      */
-    public function setKarma($karma)
+    public function setKarma(int $karma)
     {
         $this->karma = $karma;
     }
 
     /**
-     * @return mixed
+     * @return String
      */
-    public function getFirstName()
+    public function getEmail(): String
     {
-        return $this->firstName;
+        return $this->email;
     }
 
     /**
-     * @param mixed $firstName
+     * @param String $email
      */
-    public function setFirstName($firstName)
+    public function setEmail(String $email)
     {
-        $this->firstName = $firstName;
+        $this->email = $email;
     }
 
     /**
-     * @return mixed
+     * Specify data which should be serialized to JSON
+     *
+     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
      */
-    public function getLastName()
+    function jsonSerialize()
     {
-        return $this->lastName;
-    }
+        $user = [];
 
-    /**
-     * @param mixed $lastName
-     */
-    public function setLastName($lastName)
-    {
-        $this->lastName = $lastName;
+        $user['id'] = $this->id;
+        $user['karma'] = $this->karma;
+        $user['alias'] = $this->alias;
+
+        if (!empty($user['email'])) {
+            $user['email'] = $this->email;
+        }
+
+        return $user;
     }
 }
