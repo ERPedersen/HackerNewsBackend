@@ -44,7 +44,7 @@ class UserAccess implements IUserAccess
         $row = $stmt->fetch();
 
         if ($row) {
-            $user = new User($row['id'], $row['email'], $row['karma'], $row['alias']);
+            $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
 
             return $user;
         } else {
@@ -61,7 +61,7 @@ class UserAccess implements IUserAccess
         $stmt = DB::conn()->prepare('SELECT id, email, karma, alias FROM users WHERE email = :email');
         $stmt->execute(['email' => $email]);
         $row = $stmt->fetch();
-        $user = new User($row['id'], $row['email'], $row['karma'], $row['alias']);
+        $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
 
         return $user;
     }
@@ -76,7 +76,7 @@ class UserAccess implements IUserAccess
         $stmt = DB::conn()->prepare('SELECT id, email, karma, alias FROM users WHERE id = :id');
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch();
-        $user = new User($row['id'], $row['email'], $row['karma'], $row['alias']);
+        $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
 
         return $user;
     }
@@ -90,7 +90,7 @@ class UserAccess implements IUserAccess
         $stmt = DB::conn()->prepare('SELECT id, email, karma, alias FROM users WHERE alias = :alias');
         $stmt->execute(['alias' => $alias]);
         $row = $stmt->fetch();
-        $user = new User($row['id'], $row['email'], $row['karma'], $row['alias']);
+        $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
 
         return $user;
     }
