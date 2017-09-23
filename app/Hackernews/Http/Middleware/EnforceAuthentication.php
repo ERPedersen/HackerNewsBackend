@@ -33,7 +33,13 @@ class EnforceAuthentication
             $token = $tokenService->decode($header);
 
             if ($token && $tokenService->verify($token)) {
-                $request = $request->withAttribute("decoded", $token);
+
+                $request = $request->withAttributes([
+                    "user_id" => $token->getClaim('id'),
+                    "user_email" => $token->getClaim('email'),
+                    "user_alias" => $token->getClaim('alias'),
+                    "user_karma" => $token->getClaim('karma'),
+                ]);
 
                 return $next($request, $response);
             }

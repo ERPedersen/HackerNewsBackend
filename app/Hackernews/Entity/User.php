@@ -19,7 +19,7 @@ class User implements JsonSerializable
     /**
      * @var String
      */
-    private $email;
+    private $alias;
 
     /**
      * @var int
@@ -29,7 +29,7 @@ class User implements JsonSerializable
     /**
      * @var String
      */
-    private $alias;
+    private $email;
 
     /**
      * User constructor.
@@ -39,12 +39,12 @@ class User implements JsonSerializable
      * @param int $karma
      * @param String $alias
      */
-    public function __construct($id, $email, $karma, $alias)
+    public function __construct($id, $alias, $karma, $email = null)
     {
         $this->id = $id;
-        $this->email = $email;
         $this->karma = $karma;
         $this->alias = $alias;
+        $this->email = $email;
     }
 
     /**
@@ -66,17 +66,17 @@ class User implements JsonSerializable
     /**
      * @return String
      */
-    public function getEmail(): String
+    public function getAlias(): String
     {
-        return $this->email;
+        return $this->alias;
     }
 
     /**
-     * @param String $email
+     * @param String $alias
      */
-    public function setEmail(String $email)
+    public function setAlias(String $alias)
     {
-        $this->email = $email;
+        $this->alias = $alias;
     }
 
     /**
@@ -98,17 +98,17 @@ class User implements JsonSerializable
     /**
      * @return String
      */
-    public function getAlias(): String
+    public function getEmail(): String
     {
-        return $this->alias;
+        return $this->email;
     }
 
     /**
-     * @param String $alias
+     * @param String $email
      */
-    public function setAlias(String $alias)
+    public function setEmail(String $email)
     {
-        $this->alias = $alias;
+        $this->email = $email;
     }
 
     /**
@@ -121,11 +121,16 @@ class User implements JsonSerializable
      */
     function jsonSerialize()
     {
-        return [
-            "id" => $this->id,
-            "email" => $this->email,
-            "karma" => $this->karma,
-            "alias" => $this->alias,
-        ];
+        $user = [];
+
+        $user['id'] = $this->id;
+        $user['karma'] = $this->karma;
+        $user['alias'] = $this->alias;
+
+        if (!empty($user['email'])) {
+            $user['email'] = $this->email;
+        }
+
+        return $user;
     }
 }
