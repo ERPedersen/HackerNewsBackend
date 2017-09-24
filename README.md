@@ -13,6 +13,7 @@ This is the backend for the Hacker News Clone project.
 ## Documents
 - [Requirements Analysis](/requirements-analysis.md)
 - [Description of Continuous Delivery Strategy](/continuous-delivery.md)
+- [Installation Guide](/installation.md)
 
 ## Dependencies
 - Linux
