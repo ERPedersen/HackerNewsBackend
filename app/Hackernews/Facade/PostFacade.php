@@ -4,6 +4,7 @@ namespace Hackernews\Facade;
 
 use Exception;
 use Hackernews\Access\PostAccess;
+use Hackernews\Entity\Post;
 use Hackernews\Services\UrlService;
 
 /**
@@ -60,5 +61,14 @@ class PostFacade implements IPostFacade
     public function getPosts($limit = 5, $page = 1)
     {
         return $this->access->getPosts($limit, $page);
+    }
+
+    /**
+     * @param $slug
+     * @return array
+     */
+    public function getPostBySlug($slug)
+    {
+        return $this->access->getPostBySlug($slug);
     }
 }

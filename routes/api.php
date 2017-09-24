@@ -1,6 +1,7 @@
 <?php
 
 use Hackernews\Http\Controllers\AdminController;
+use Hackernews\Http\Controllers\CommentController;
 use Hackernews\Http\Controllers\IndexController;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
@@ -30,5 +31,9 @@ $app->group("", function () use ($app) {
 
     $app->get("/post", PostController::class.':getPosts')
         ->add(new ValidatePaginationCredentials());
+
+    $app->get("/post/{slug}", PostController::class.':getPost');
+
+    $app->get("/comments/{id}", CommentController::class.':getComments' );
 
 })->add(new AllowCrossOrigin());
