@@ -10,6 +10,10 @@ This is the backend for the Hacker News Clone project.
 - Nicolai Bonderup - *Quality Assurance*
 - Rune Vandall Zimsen - *Project Manager*
 
+## Documents
+- [Requirements Analysis](/requirements-analysis.md)
+- [Description of Continuous Delivery Strategy](/continuous-delivery.md)
+
 ## Dependencies
 - Linux
 - Apache
