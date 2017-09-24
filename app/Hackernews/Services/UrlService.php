@@ -18,7 +18,6 @@ class UrlService
         $title = preg_replace('/^[a-zA-Z\d]+$/', '', $title);
         $title = strtolower($title);
         $title = str_replace(" ", "-", $title);
-        $title = urlencode($title);
         return $title;
     }
 

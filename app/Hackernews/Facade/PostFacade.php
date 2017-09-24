@@ -38,8 +38,7 @@ class PostFacade implements IPostFacade
      */
     public function createPost(String $title, String $url, int $userRef)
     {
-
-        $slug = UrlService::getSlug($title);
+        $slug = mb_strtolower(urldecode(UrlService::getSlug($title)), 'UTF-8');
         $domain = UrlService::getDomain($url);
 
         try {
@@ -69,6 +68,8 @@ class PostFacade implements IPostFacade
      */
     public function getPostBySlug($slug)
     {
+        $slug = mb_strtolower($slug, 'UTF-8');
+
         return $this->access->getPostBySlug($slug);
     }
 }
