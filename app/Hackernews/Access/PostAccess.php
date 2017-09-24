@@ -99,6 +99,45 @@ class PostAccess implements IPostAccess
     }
 
     /**
+     * @param String $slug
+     * @return array
+     * @throws NoPostsException
+     */
+    public function getPostBySlug(String $slug)
+    {
+
+        $stmt = DB::conn()->prepare("SELECT 
+                                     p.id AS post_id, 
+                                     p.title AS post_title, 
+                                     p.slug AS post_slug, 
+                                     p.url AS post_url, 
+                                     p.domain AS post_domain, 
+                                     p.karma AS post_karma, 
+                                     p.spam AS post_spam,
+                                     p.created_at AS post_created_at,
+                                     u.id AS author_id, 
+                                     u.alias AS author_alias, 
+                                     u.karma AS author_karma
+                                     FROM posts AS p
+                                     JOIN users u
+                                     ON p.user_ref = u.id
+                                     WHERE  p.slug = :slug");
+
+        $stmt->execute(['slug' => $slug]);
+
+        if ($stmt->rowCount() == 0) {
+            throw new NoPostsException("No results found", 0);
+        }
+
+        $row = $stmt->fetch();
+
+        $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
+        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
+
+        return ['author' => $author, 'post' => $post];
+    }
+
+    /**
      * Fetches all posts
      *
      * @param int $limit

@@ -19,6 +19,8 @@ class PostValidator
             return false;
         }
 
+        
+
         return true;
     }
 
@@ -28,9 +30,9 @@ class PostValidator
      */
     public static function validateUrl($url)
     {
-        $pattern = '/(?:https?:\/\/)?(?:[a-zA-Z0-9.-]+?\.(?:[a-zA-Z])|\d+\.\d+\.\d+\.\d+)/';
+        $pattern = '/(?:https?:\/\/)(?:[a-zA-Z0-9.-]+?\.(?:[a-zA-Z])|\d+\.\d+\.\d+\.\d+)/';
 
-        if (empty($url) || strlen($url) > 2083 || ! preg_match($pattern, $url)) {
+        if (empty($url) || strlen($url) > 2083 || preg_match($pattern, $url) != 1) {
             return false;
         }
 

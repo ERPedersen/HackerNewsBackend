@@ -21,4 +21,10 @@ interface IPostFacade
      * @return mixed
      */
     public function getPosts($limit, $page);
+
+    /**
+     * @param $slug
+     * @return array
+     */
+    public function getPostBySlug($slug);
 }

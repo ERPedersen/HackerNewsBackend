@@ -7,7 +7,6 @@ use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoPostsException;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
-use Hackernews\Services\DB;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -62,6 +61,25 @@ class PostController
             return $response->withJson(ResponseHandler::success($result));
         } catch (NoPostsException $e) {
             return $response->withStatus(200)->withJson(ResponseHandler::success([]));
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
+    public function getPost(Request $request, Response $response)
+    {
+        try {
+            $slug = $request->getAttribute('slug');
+            $postFacade = new PostFacade();
+
+            $post = $postFacade->getPostBySlug($slug);
+
+            return $response->withJson(ResponseHandler::success($post), 200);
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
