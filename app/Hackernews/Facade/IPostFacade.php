@@ -16,4 +16,9 @@ interface IPostFacade
      * @return mixed
      */
     public function createPost(String $title, String $url, int $userRef);
+
+    /**
+     * @return mixed
+     */
+    public function getPosts($limit, $page);
 }

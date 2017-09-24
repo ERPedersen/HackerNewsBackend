@@ -23,6 +23,8 @@ class Post implements JsonSerializable
 
     private $karma;
 
+    private $createdAt;
+
     private $userRef;
 
     private $spam;
@@ -46,6 +48,7 @@ class Post implements JsonSerializable
         String $url,
         String $domain,
         String $karma,
+        String $createdAt,
         String $userRef = null,
         $spam = false
     ) {
@@ -55,6 +58,7 @@ class Post implements JsonSerializable
         $this->url = $url;
         $this->domain = $domain;
         $this->karma = $karma;
+        $this->createdAt = $createdAt;
         $this->userRef = $userRef;
         $this->spam = $spam;
     }
@@ -158,6 +162,22 @@ class Post implements JsonSerializable
     /**
      * @return String
      */
+    public function getCreatedAt(): String
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param String $createdAt
+     */
+    public function setCreatedAt(String $createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return String
+     */
     public function getUserRef(): String
     {
         return $this->userRef;
@@ -204,6 +224,7 @@ class Post implements JsonSerializable
         $post['url'] = $this->url;
         $post['domain'] = $this->domain;
         $post['karma'] = $this->karma;
+        $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
 
         return $post;
