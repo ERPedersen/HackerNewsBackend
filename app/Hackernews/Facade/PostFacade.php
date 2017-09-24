@@ -53,4 +53,12 @@ class PostFacade implements IPostFacade
             throw $e;
         }
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPosts($limit = 5, $page = 1)
+    {
+        return $this->access->getPosts($limit, $page);
+    }
 }

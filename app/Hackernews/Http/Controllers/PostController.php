@@ -4,8 +4,10 @@ namespace Hackernews\Http\Controllers;
 
 use Exception;
 use Hackernews\Exceptions\DuplicatePostException;
+use Hackernews\Exceptions\NoPostsException;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Services\DB;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -37,6 +39,29 @@ class PostController
             return $response->withJson(ResponseHandler::success($result));
         } catch (DuplicatePostException $e) {
             return $response->withStatus(409)->withJson(ResponseHandler::error($e));
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    public function getPosts(Request $request, Response $response)
+    {
+
+        $limit = $request->getParam('limit');
+        $page = $request->getParam('page');
+
+        try {
+            $postFacade = new PostFacade();
+
+            if ($limit && $page) {
+                $result = $postFacade->getPosts($limit, $page);
+            } else {
+                $result = $postFacade->getPosts();
+            }
+
+            return $response->withJson(ResponseHandler::success($result));
+        } catch (NoPostsException $e) {
+            return $response->withStatus(200)->withJson(ResponseHandler::success([]));
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }

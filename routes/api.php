@@ -8,6 +8,7 @@ use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
 use Hackernews\Http\Middleware\ValidateLoginCredentials;
+use Hackernews\Http\Middleware\ValidatePaginationCredentials;
 use Hackernews\Http\Middleware\ValidateSignUpCredentials;
 
 $app->group("", function () use ($app) {
@@ -26,5 +27,8 @@ $app->group("", function () use ($app) {
     $app->post("/post", PostController::class.':createPost')
         ->add(new ValidateCreatePostCredentials())
         ->add(new EnforceAuthentication());
+
+    $app->get("/post", PostController::class.':getPosts')
+        ->add(new ValidatePaginationCredentials());
 
 })->add(new AllowCrossOrigin());

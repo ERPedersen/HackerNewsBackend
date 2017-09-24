@@ -5,6 +5,7 @@ namespace Hackernews\Access;
 use Hackernews\Entity\User;
 use Hackernews\Entity\Post;
 use Hackernews\Exceptions\DuplicatePostException;
+use Hackernews\Exceptions\NoPostsException;
 use Hackernews\Services\DB;
 use PDOException;
 
@@ -73,22 +74,83 @@ class PostAccess implements IPostAccess
                                      p.url AS post_url, 
                                      p.domain AS post_domain, 
                                      p.karma AS post_karma, 
-                                     p.spam AS post_spam, 
+                                     p.spam AS post_spam,
+                                     p.created_at AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
                                      u.karma AS author_karma
                                      FROM posts AS p
-                                     RIGHT JOIN users u
+                                     JOIN users u
                                      ON p.user_ref = u.id
                                      WHERE  p.id = :id");
 
         $stmt->execute(['id' => $id]);
+
+        if ($stmt->rowCount() == 0) {
+            throw new NoPostsException("No results found", 0);
+        }
+
         $row = $stmt->fetch();
 
         $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['author_id'], $row['post_spam']);
+        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
 
         return ['author' => $author, 'post' => $post];
+    }
+
+    /**
+     * Fetches all posts
+     *
+     * @param int $limit
+     * @param int $page
+     * @return array
+     */
+    public function getPosts($limit, $page)
+    {
+        // Set pagination variables
+        $limit = $limit + 1;
+        $offset = ($limit - 1) * ($page - 1);
+
+        $stmt = DB::conn()->prepare("SELECT 
+                                     p.id AS post_id, 
+                                     p.title AS post_title, 
+                                     p.slug AS post_slug, 
+                                     p.url AS post_url, 
+                                     p.domain AS post_domain, 
+                                     p.karma AS post_karma, 
+                                     p.spam AS post_spam, 
+                                     p.created_at AS post_created_at,
+                                     u.id AS author_id, 
+                                     u.alias AS author_alias, 
+                                     u.karma AS author_karma
+                                     FROM posts AS p
+                                     JOIN users u
+                                     ON p.user_ref = u.id
+                                     ORDER BY p.created_at DESC
+                                     LIMIT :limit_amount
+                                     OFFSET :offset_amount");
+
+        $stmt->execute(['limit_amount' => $limit, 'offset_amount' => $offset]);
+        $results = [];
+        $results['posts'] = [];
+
+        // Build results
+        while ($row = $stmt->fetch()) {
+            $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
+            $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
+
+            array_push($results['posts'], ['author' => $author, 'post' => $post]);
+        }
+
+        // Check pagination
+        if (count($results['posts']) == $limit) {
+            $results['has_more'] = true;
+            unset($results['posts'][count($results['posts']) - 1]);
+        } else {
+            $results['has_more'] = false;
+        }
+
+        return $results;
     }
 
     /**
