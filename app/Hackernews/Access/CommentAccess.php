@@ -21,10 +21,16 @@ class CommentAccess implements ICommentAccess
 {
     /**
      * @param int $postRef
+     * @param int $limit
+     * @param int $page
      * @return array
      */
-    public function getCommentsByPostId(int $postRef)
+    public function getCommentsByPostId(int $postRef, int $limit, int $page)
     {
+        // Set pagination variables
+        $limit = $limit + 1;
+        $offset = ($limit - 1) * ($page - 1);
+
         try {
             $stmt = DB::conn()->prepare("
             SELECT c.id   AS comment_id, 
@@ -42,9 +48,11 @@ class CommentAccess implements ICommentAccess
             JOIN users u ON c.user_ref = u.id
             WHERE post_ref = :post_ref
             ORDER BY c.created_at DESC
+            LIMIT :limit_amount
+            OFFSET :offset_amount
         ");
 
-            $stmt->execute(['post_ref' => $postRef]);
+            $stmt->execute(['post_ref' => $postRef, 'limit_amount' => $limit, 'offset_amount' => $offset]);
 
             $results = [];
 
@@ -70,7 +78,18 @@ class CommentAccess implements ICommentAccess
                 array_push($results, $comment);
             }
 
-            return $results;
+            // Check pagination
+            if (count($results) == $limit) {
+                $hasMore = true;
+                array_pop($results);
+            } else {
+                $hasMore = false;
+            }
+
+            return [
+                'has_more' => $hasMore,
+                'comments' => $results
+            ];
         } catch (PDOException $e) {
             throw $e;
         }

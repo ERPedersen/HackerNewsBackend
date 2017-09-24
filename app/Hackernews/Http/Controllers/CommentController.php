@@ -26,9 +26,19 @@ class CommentController
     {
         try {
             $id = $request->getAttribute('id');
+
+            $limit = $request->getParam('limit');
+            $page = $request->getParam('page');
+
             $commentFacade = new CommentFacade();
 
-            $comments = $commentFacade->getCommentByPostId($id);
+            //If limit and page is in the request object, the query is called with them as parameters. Otherwise limit and page is set to 5 and 1.
+            if ($limit && $page) {
+                $comments = $commentFacade->getCommentByPostId($id, $limit, $page);
+            } else {
+                $comments = $commentFacade->getCommentByPostId($id);
+            }
+
             return $response->withJson(ResponseHandler::success($comments), 200);
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));

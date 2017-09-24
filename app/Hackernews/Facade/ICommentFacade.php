@@ -16,7 +16,9 @@ interface ICommentFacade
 {
     /**
      * @param int $postRef
+     * @param int $limit
+     * @param int $page
      * @return mixed
      */
-    public function getCommentByPostId(int $postRef);
+    public function getCommentByPostId(int $postRef, int $limit, int $page);
 }
