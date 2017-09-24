@@ -68,7 +68,7 @@ class Comment implements JsonSerializable
      * @param $created_at
      * @param User|null $user
      */
-    public function __construct(int $id, int $user_ref, int $post_ref, int $comment_ref, String $content, int $karma, bool $spam, String $created_at, User $user = null)
+    public function __construct(int $id, int $user_ref, int $post_ref, int $comment_ref = null, String $content, int $karma, bool $spam, String $created_at, User $user = null)
     {
         $this->id = $id;
         $this->user_ref = $user_ref;

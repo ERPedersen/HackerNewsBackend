@@ -18,5 +18,5 @@ interface ICommentAccess
      * @param int $postRef
      * @return mixed
      */
-    public function getCommentsPostById(int $postRef);
+    public function getCommentsByPostId(int $postRef);
 }
