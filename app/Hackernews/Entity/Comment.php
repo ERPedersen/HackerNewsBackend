@@ -241,7 +241,7 @@ class Comment implements JsonSerializable
         $comment['created_at'] = $this->created_at;
 
         if (null !== $this->user) {
-            $comment['user'] = $this->user;
+            $comment['author'] = $this->user;
         }
 
         return $comment;

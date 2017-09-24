@@ -61,7 +61,7 @@ class PostAccess implements IPostAccess
      * by slug.
      *
      * @param int $id
-     * @return array
+     * @return Post|mixed
      * @throws \Exception|\PDOException
      */
     public function getPostById(int $id)
@@ -93,14 +93,14 @@ class PostAccess implements IPostAccess
         $row = $stmt->fetch();
 
         $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
+        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam'], $author);
 
-        return ['author' => $author, 'post' => $post];
+        return $post;
     }
 
     /**
      * @param String $slug
-     * @return array
+     * @return Post
      * @throws NoPostsException
      */
     public function getPostBySlug(String $slug)
@@ -132,9 +132,9 @@ class PostAccess implements IPostAccess
         $row = $stmt->fetch();
 
         $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
+        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam'], $author);
 
-        return ['author' => $author, 'post' => $post];
+        return $post;
     }
 
     /**
@@ -151,18 +151,18 @@ class PostAccess implements IPostAccess
         $offset = ($limit - 1) * ($page - 1);
 
         $stmt = DB::conn()->prepare("SELECT 
-                                     p.id AS post_id, 
-                                     p.title AS post_title, 
-                                     p.slug AS post_slug, 
-                                     p.url AS post_url, 
-                                     p.domain AS post_domain, 
-                                     p.karma AS post_karma, 
-                                     p.spam AS post_spam, 
+                                     p.id         AS post_id, 
+                                     p.title      AS post_title, 
+                                     p.slug       AS post_slug, 
+                                     p.url        AS post_url, 
+                                     p.domain     AS post_domain, 
+                                     p.karma      AS post_karma, 
+                                     p.spam       AS post_spam, 
                                      p.created_at AS post_created_at,
-                                     u.id AS author_id, 
-                                     u.alias AS author_alias, 
-                                     u.karma AS author_karma
-                                     FROM posts AS p
+                                     u.id         AS author_id, 
+                                     u.alias      AS author_alias, 
+                                     u.karma      AS author_karma
+                                     FROM posts   AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
                                      ORDER BY p.created_at DESC
@@ -171,25 +171,44 @@ class PostAccess implements IPostAccess
 
         $stmt->execute(['limit_amount' => $limit, 'offset_amount' => $offset]);
         $results = [];
-        $results['posts'] = [];
 
         // Build results
         while ($row = $stmt->fetch()) {
-            $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-            $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam']);
 
-            array_push($results['posts'], ['author' => $author, 'post' => $post]);
+            $author = new User(
+                $row['author_id'],
+                $row['author_alias'],
+                $row['author_karma']
+            );
+
+            $post = new Post(
+                $row['post_id'],
+                $row['post_title'],
+                $row['post_slug'],
+                $row['post_url'],
+                $row['post_domain'],
+                $row['post_karma'],
+                $row['post_created_at'],
+                $row['author_id'],
+                $row['post_spam'],
+                $author
+            );
+
+            array_push($results, $post);
         }
 
         // Check pagination
-        if (count($results['posts']) == $limit) {
-            $results['has_more'] = true;
-            unset($results['posts'][count($results['posts']) - 1]);
+        if (count($results) == $limit) {
+            $hasMore = true;
+            array_pop($results);
         } else {
-            $results['has_more'] = false;
+            $hasMore = false;
         }
 
-        return $results;
+        return [
+            'has_more' => $hasMore,
+            'posts' => $results
+        ];
     }
 
     /**
@@ -203,7 +222,7 @@ class PostAccess implements IPostAccess
     {
 
         $stmt = DB::conn()->prepare("SELECT slug FROM posts WHERE slug LIKE :slug");
-        $stmt->execute(['slug' => $slug.'%']);
+        $stmt->execute(['slug' => $slug . '%']);
 
         $rowCount = $stmt->rowCount();
 
@@ -219,11 +238,11 @@ class PostAccess implements IPostAccess
             }
 
             // Keep incrementing, until we don't find anything
-            while (in_array(($slug.'-'.$max), $slugs)) {
+            while (in_array(($slug . '-' . $max), $slugs)) {
                 $max++;
             }
 
-            $slug .= '-'.$max;
+            $slug .= '-' . $max;
         }
 
         return $slug;

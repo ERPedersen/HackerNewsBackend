@@ -11,23 +11,55 @@ use JsonSerializable;
  */
 class Post implements JsonSerializable
 {
+    /**
+     * @var int
+     */
     private $id;
 
+    /**
+     * @var String
+     */
     private $slug;
 
+    /**
+     * @var String
+     */
     private $title;
 
+    /**
+     * @var String
+     */
     private $url;
 
+    /**
+     * @var String
+     */
     private $domain;
 
+    /**
+     * @var String
+     */
     private $karma;
 
+    /**
+     * @var String
+     */
     private $createdAt;
 
+    /**
+     * @var String
+     */
     private $userRef;
 
+    /**
+     * @var bool
+     */
     private $spam;
+
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * Post constructor.
@@ -38,8 +70,10 @@ class Post implements JsonSerializable
      * @param String $url
      * @param String $domain
      * @param String $karma
+     * @param String $createdAt
      * @param String $userRef
      * @param bool $spam
+     * @param User $user
      */
     public function __construct(
         int $id,
@@ -50,7 +84,8 @@ class Post implements JsonSerializable
         String $karma,
         String $createdAt,
         String $userRef = null,
-        $spam = false
+        $spam = false,
+        User $user = null
     ) {
         $this->id = $id;
         $this->title = $title;
@@ -61,6 +96,7 @@ class Post implements JsonSerializable
         $this->createdAt = $createdAt;
         $this->userRef = $userRef;
         $this->spam = $spam;
+        $this->user = $user;
     }
 
     /**
@@ -208,6 +244,22 @@ class Post implements JsonSerializable
     }
 
     /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -226,6 +278,10 @@ class Post implements JsonSerializable
         $post['karma'] = $this->karma;
         $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
+
+        if (null !== $this->user) {
+            $post['author'] = $this->user;
+        }
 
         return $post;
     }
