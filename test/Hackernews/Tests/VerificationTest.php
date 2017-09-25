@@ -3,13 +3,15 @@
 namespace Hackernews\Tests;
 
 use Hackernews\Facade\UserFacade;
+use Hackernews\Entity\User;
+use Exception;
 
 /**
- * Class VerificationTests
+ * Class VerificationTest
  *
  * @package Hackernews\Tests
  */
-class VerificationTests extends \PHPUnit_Framework_TestCase
+class VerificationTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
@@ -29,32 +31,30 @@ class VerificationTests extends \PHPUnit_Framework_TestCase
 
     /**
      * Tests for incorrect user login with bad password.
+     * @expectedException        Exception
+     * @expectedExceptionMessage Mismatching credentials
      */
     public function testLoginWithWrongPassword()
     {
         $this->facade = new UserFacade();
-        $user = new User("test@test.com", "test", 666, "John", "Doe");
 
 
-        $result = $this->facade->verifyUser('test@test.com','test');
+        $this->facade->verifyUser('test@test.com','hey');
 
-
-        self::assertEquals($user,$result);
     }
 
     /**
      * Tests for incorrect login with nonexistent user.
+     * @expectedException        Exception
+     * @expectedExceptionMessage Mismatching credentials
      */
     public function testLoginWithWrongUsername()
     {
         $this->facade = new UserFacade();
-        $user = new User("test@test.com", "test", 666, "John", "Doe");
 
 
-        $result = $this->facade->verifyUser('balls@balls.ru','test');
+        $this->facade->verifyUser('balls@balls.ru','test');
 
-
-        self::assertEquals($user,$result);
     }
 
 
