@@ -22,9 +22,9 @@ class UserAccess implements IUserAccess
     {
         // TODO: Implement DB functionality.
         $_username = "test@test.com";
-        $_password = "test";
+        $_password = password_hash("test",PASSWORD_BCRYPT,['cost' => 10]);
 
-        if ($username === $_username && $password === $_password) {
+        if ($username === $_username && password_verify($password,$_password)) {
             return new User("test@test.com", "test", 666, "John", "Doe");
         } else {
             throw new Exception("Mismatching credentials", 1);
