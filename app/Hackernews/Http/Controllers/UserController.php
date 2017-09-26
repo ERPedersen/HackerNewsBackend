@@ -16,9 +16,7 @@ use Slim\Http\Response;
 class UserController
 {
     public function getUserData(Request $request, Response $response) {
-        $json = $request->getParsedBody();
-
-        $id = $json['id'];
+        $id = $request->getAttribute('user_id');
 
         try {
             $userFacade = new UserFacade();

@@ -23,7 +23,7 @@ $app->group("", function () use ($app) {
     $app->post("/signup", AuthController::class . ':signUp')
         ->add(new ValidateSignUpCredentials());
 
-    $app->post("/getuserdata", UserController::class . ':getUserData')
+    $app->get("/profile", UserController::class . ':getUserData')
         ->add(new EnforceAuthentication());
 
     $app->get("/admin", AdminController::class . ':admin')
