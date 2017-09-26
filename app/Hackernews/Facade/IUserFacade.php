@@ -23,4 +23,10 @@ interface IUserFacade
      * @return mixed
      */
     public function createUser(String $email, String $password, String $alias);
+
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function getUserData(int $id);
 }
