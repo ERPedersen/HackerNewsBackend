@@ -39,17 +39,19 @@ class UserAccess implements IUserAccess
      */
     public function verifyUser(String $username, String $password)
     {
-        $stmt = DB::conn()->prepare('SELECT id, email, pass, karma, alias FROM users WHERE email = :email AND pass = :pass');
-        $stmt->execute(['email' => $username, 'pass' => $password]);
+
+        $stmt = DB::conn()->prepare('SELECT id, email, pass, karma, alias FROM users WHERE email = :email');
+        $stmt->execute(['email' => $username]);
         $row = $stmt->fetch();
 
-        if ($row) {
-            $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
+        if ($row && password_verify($password,$row['pass'])) {
+                $user = new User($row['id'], $row['alias'], $row['karma'], $row['email']);
 
-            return $user;
-        } else {
-            throw new Exception("Mismatching credentials", 1);
-        }
+                return $user;
+            } else {
+                throw new Exception("Mismatching credentials", 1);
+            }
+
     }
 
     /**
@@ -104,10 +106,11 @@ class UserAccess implements IUserAccess
      */
     public function createUser(String $email, String $password, String $alias)
     {
+        $passwordHash = password_hash($password,PASSWORD_BCRYPT,['cost' => 10]);
         try {
             DB::conn()->prepare("INSERT INTO users (email, pass, alias) VALUES (:email, :pass, :alias)")->execute([
                 "email" => $email,
-                "pass" => $password,
+                "pass" => $passwordHash,
                 "alias" => $alias,
             ]);
         } catch (PDOException $e) {
