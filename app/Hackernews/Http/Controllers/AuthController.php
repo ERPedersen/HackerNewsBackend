@@ -55,7 +55,6 @@ class AuthController
         $email = $json['email'];
         $password = $json['password'];
         $alias = $json['alias'];
-        $test = "Checking for merge conflicts";
 
         try {
             $userFacade = new UserFacade();
