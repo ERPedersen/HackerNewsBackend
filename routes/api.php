@@ -5,6 +5,7 @@ use Hackernews\Http\Controllers\CommentController;
 use Hackernews\Http\Controllers\IndexController;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
+use Hackernews\Http\Controllers\UserController;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
@@ -21,6 +22,9 @@ $app->group("", function () use ($app) {
 
     $app->post("/signup", AuthController::class . ':signUp')
         ->add(new ValidateSignUpCredentials());
+
+    $app->post("/getuserdata", UserController::class . ':getUserData')
+        ->add(new EnforceAuthentication());
 
     $app->get("/admin", AdminController::class . ':admin')
         ->add(new EnforceAuthentication());
