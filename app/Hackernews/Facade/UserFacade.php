@@ -92,4 +92,19 @@ class UserFacade implements IUserFacade
             throw $e;
         }
     }
+
+    /**
+     * @param int $id
+     * @return \Hackernews\Entity\User
+     * @throws Exception
+     */
+    public function getUserData(int $id) {
+        try {
+            $user = $this->access->getUserById($id);
+
+            return $user;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }
