@@ -158,7 +158,7 @@ class PostAccess implements IPostAccess
                                      p.domain     AS post_domain, 
                                      p.karma      AS post_karma, 
                                      p.spam       AS post_spam, 
-                                     p.created_at AS post_created_at,
+                                     DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id         AS author_id, 
                                      u.alias      AS author_alias, 
                                      u.karma      AS author_karma
