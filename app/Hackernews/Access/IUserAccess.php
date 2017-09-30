@@ -21,4 +21,12 @@ interface IUserAccess
      * @return mixed
      */
     public function verifyUser(String $username, String $password);
+
+    /**
+     * @param String $email
+     * @param String $password
+     * @param String $alias
+     * @return mixed
+     */
+    public function createUser(String $email, String $password, String $alias);
 }

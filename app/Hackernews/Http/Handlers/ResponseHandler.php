@@ -8,7 +8,9 @@
 
 namespace Hackernews\Http\Handlers;
 
-use Hackernews\Entity\ApiResponse;
+use Exception;
+use Hackernews\Exceptions\MultiException;
+use stdClass;
 
 /**
  * Class ResponseHandler
@@ -19,21 +21,41 @@ class ResponseHandler
 {
     /**
      * @param $data
-     * @return \Hackernews\Entity\ApiResponse
+     * @return \stdClass
      */
     public static function success($data)
     {
-        return new ApiResponse(0, null, $data);
+        $response = new stdClass();
+        $response->code = 0;
+        $response->data = $data;
+
+        return $response;
     }
 
     /**
-     * @param int $code
-     * @param string $message
-     * @param $data
-     * @return \Hackernews\Entity\ApiResponse
+     * @param \Hackernews\Exceptions\MultiException $exception
+     * @return \stdClass
      */
-    public static function error(int $code, string $message, $data)
+    public static function errorWithMessages(MultiException $exception)
     {
-        return new ApiResponse($code, $message, $data);
+        $response = new stdClass();
+        $response->code = $exception->getCode();
+        $response->message = $exception->getMessage();
+        $response->errors = $exception->getErrors();
+
+        return $response;
+    }
+
+    /**
+     * @param \Exception $exception
+     * @return \stdClass
+     */
+    public static function error(Exception $exception)
+    {
+        $response = new stdClass();
+        $response->code = $exception->getCode();
+        $response->message = $exception->getMessage();
+
+        return $response;
     }
 }

@@ -1,13 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Emil
- * Date: 16-09-2017
- * Time: 13:14
- */
 
 namespace Hackernews\Http\Middleware;
 
+use Hackernews\Exceptions\AuthException;
+use Hackernews\Http\Handlers\ResponseHandler;
 use Hackernews\Services\TokenService;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -37,12 +33,18 @@ class EnforceAuthentication
             $token = $tokenService->decode($header);
 
             if ($token && $tokenService->verify($token)) {
-                $request = $request->withAttribute("decoded", $token);
+
+                $request = $request->withAttributes([
+                    "user_id" => $token->getClaim('id'),
+                    "user_email" => $token->getClaim('email'),
+                    "user_alias" => $token->getClaim('alias'),
+                    "user_karma" => $token->getClaim('karma'),
+                ]);
 
                 return $next($request, $response);
             }
         }
 
-        return $response->withStatus(401)->withJson('You do not have permission to request this resource');
+        return $response->withStatus(401)->withJson(ResponseHandler::error(new AuthException("You do not have permission to request this resource", 5)));
     }
 }

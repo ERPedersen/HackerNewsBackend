@@ -20,6 +20,9 @@ class AdminController
      */
     public function admin(Request $request, Response $response)
     {
-        return $response->withJson(ResponseHandler::success("Welcome"));
+
+        $alias = $request->getAttribute('user_alias');
+
+        return $response->withJson(ResponseHandler::success("Welcome ".$alias));
     }
 }
