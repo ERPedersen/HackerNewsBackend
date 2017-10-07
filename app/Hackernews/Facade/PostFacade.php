@@ -55,6 +55,30 @@ class PostFacade implements IPostFacade
     }
 
     /**
+     * @param $title
+     * @param $url
+     * @param $userRef
+     * @return mixed
+     * @throws \Exception
+     */
+    public function createStory(String $title, String $content, int $userRef)
+    {
+        $slug = mb_strtolower(urldecode(UrlService::getSlug($title)), 'UTF-8');
+
+        try {
+            $inserted_id = $this->access->createStory($title, $slug, $content, $userRef);
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        try {
+            return $this->access->getPostById($inserted_id);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getPosts($limit = 5, $page = 1)
@@ -64,7 +88,7 @@ class PostFacade implements IPostFacade
 
     /**
      * @param $slug
-     * @return array
+     * @return Post
      */
     public function getPostBySlug($slug)
     {
