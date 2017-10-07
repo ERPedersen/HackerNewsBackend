@@ -19,7 +19,6 @@ class PostValidator
             return false;
         }
 
-        
 
         return true;
     }
@@ -37,5 +36,14 @@ class PostValidator
         }
 
         return true;
+    }
+
+    /**
+     * @param $content
+     * @return bool
+     */
+    public static function validateContent($content)
+    {
+        return !empty($content);
     }
 }
