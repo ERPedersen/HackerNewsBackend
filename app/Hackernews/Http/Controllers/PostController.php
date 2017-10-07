@@ -26,14 +26,22 @@ class PostController
     {
 
         $json = $request->getParsedBody();
+        $postType = $request->getAttribute('post_type');
         $userRef = $request->getAttribute('user_id');
-
         $title = $json['title'];
-        $url = $json['url'];
 
         try {
             $postFacade = new PostFacade();
-            $result = $postFacade->createPost($title, $url, $userRef);
+
+            if ($postType === 'story') {
+                $content = $json['content'];
+                $result = $postFacade->createStory($title, $content, $userRef);
+            } else if ($postType === 'link') {
+                $url = $json['url'];
+                $result = $postFacade->createPost($title, $url, $userRef);
+            } else {
+                return $response->withStatus(500)->withJson(ResponseHandler::error(new Exception("An unexpected error occured")));
+            }
 
             return $response->withJson(ResponseHandler::success($result));
         } catch (DuplicatePostException $e) {

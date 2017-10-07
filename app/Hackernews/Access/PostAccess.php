@@ -33,12 +33,13 @@ class PostAccess implements IPostAccess
     public function createPost(String $title, String $slug, String $url, String $domain, int $userRef)
     {
         try {
-            DB::conn()->prepare("INSERT INTO posts (title, slug, url, domain, user_ref) VALUES (:title, :slug, :url, :domain, :user_ref)")->execute([
+            DB::conn()->prepare("INSERT INTO posts (title, slug, url, domain, user_ref, type) VALUES (:title, :slug, :url, :domain, :user_ref, :type)")->execute([
                 "title" => $title,
                 "slug" => $slug,
                 "url" => $url,
                 "domain" => $domain,
                 "user_ref" => $userRef,
+                "type" => "link"
             ]);
 
             return DB::conn()->lastInsertId();
@@ -49,6 +50,43 @@ class PostAccess implements IPostAccess
                 } else {
                     throw new DuplicatePostException("This URL has already been posted before. Reposting is not allowed.", 7);
                 }
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * Tries to insert a post into the database. If the database exits with a duplicate entry
+     * constraint failure, we check if it's the slug causing the error. If it is the slug, we
+     * generate a unique slug, and try inserting the post again. If it is not the slug, it is
+     * the URL, and we simply throw an exception indicating that it's a repost.
+     *
+     * @param String $title
+     * @param String $slug
+     * @param String $content
+     * @param String $domain
+     * @param int $userRef
+     * @return string
+     * @throws DuplicatePostException
+     * @internal param String $url
+     */
+    public function createStory(String $title, String $slug, String $content, int $userRef)
+    {
+        try {
+            DB::conn()->prepare("INSERT INTO posts (title, slug, content, user_ref, type) VALUES (:title, :slug, :content, :user_ref, :type)")->execute([
+                "title" => $title,
+                "slug" => $slug,
+                "content" => $content,
+                "user_ref" => $userRef,
+                "type" => "story"
+            ]);
+
+            return DB::conn()->lastInsertId();
+
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062 && strpos($e->errorInfo[2], 'slug')) {
+                return $this->createStory($title, $this->getUniqueSlug($slug), $content, $userRef);
             } else {
                 throw $e;
             }
@@ -69,13 +107,14 @@ class PostAccess implements IPostAccess
 
         $stmt = DB::conn()->prepare("SELECT 
                                      p.id AS post_id, 
-                                     p.title AS post_title, 
+                                     p.title AS post_title,
+                                     p.content AS post_content,
                                      p.slug AS post_slug, 
                                      p.url AS post_url, 
                                      p.domain AS post_domain, 
                                      p.karma AS post_karma, 
                                      p.spam AS post_spam,
-                                     p.created_at AS post_created_at,
+                                     DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
                                      u.karma AS author_karma
@@ -92,8 +131,25 @@ class PostAccess implements IPostAccess
 
         $row = $stmt->fetch();
 
-        $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam'], $author);
+        $author = new User(
+            $row['author_id'],
+            $row['author_alias'],
+            $row['author_karma']
+        );
+
+        $post = new Post(
+            $row['post_id'],
+            $row['post_title'],
+            $row['post_slug'],
+            $row['post_content'],
+            $row['post_url'],
+            $row['post_domain'],
+            $row['post_karma'],
+            $row['post_created_at'],
+            $row['author_id'],
+            $row['post_spam'],
+            $author
+        );
 
         return $post;
     }
@@ -108,13 +164,14 @@ class PostAccess implements IPostAccess
 
         $stmt = DB::conn()->prepare("SELECT 
                                      p.id AS post_id, 
-                                     p.title AS post_title, 
+                                     p.title AS post_title,
+                                     p.content AS post_content,
                                      p.slug AS post_slug, 
                                      p.url AS post_url, 
                                      p.domain AS post_domain, 
                                      p.karma AS post_karma, 
                                      p.spam AS post_spam,
-                                     p.created_at AS post_created_at,
+                                     DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
                                      u.karma AS author_karma
@@ -131,8 +188,25 @@ class PostAccess implements IPostAccess
 
         $row = $stmt->fetch();
 
-        $author = new User($row['author_id'], $row['author_alias'], $row['author_karma']);
-        $post = new Post($row['post_id'], $row['post_title'], $row['post_slug'], $row['post_url'], $row['post_domain'], $row['post_karma'], $row['post_created_at'], $row['author_id'], $row['post_spam'], $author);
+        $author = new User(
+            $row['author_id'],
+            $row['author_alias'],
+            $row['author_karma']
+        );
+
+        $post = new Post(
+            $row['post_id'],
+            $row['post_title'],
+            $row['post_slug'],
+            $row['post_content'],
+            $row['post_url'],
+            $row['post_domain'],
+            $row['post_karma'],
+            $row['post_created_at'],
+            $row['author_id'],
+            $row['post_spam'],
+            $author
+        );
 
         return $post;
     }
@@ -146,33 +220,36 @@ class PostAccess implements IPostAccess
      */
     public function getPosts($limit, $page)
     {
-        // Set pagination variables
         $limit = $limit + 1;
         $offset = ($limit - 1) * ($page - 1);
 
         $stmt = DB::conn()->prepare("SELECT 
-                                     p.id         AS post_id, 
-                                     p.title      AS post_title, 
-                                     p.slug       AS post_slug, 
-                                     p.url        AS post_url, 
-                                     p.domain     AS post_domain, 
-                                     p.karma      AS post_karma, 
-                                     p.spam       AS post_spam, 
+                                     p.id AS post_id, 
+                                     p.title AS post_title, 
+                                     p.slug AS post_slug, 
+                                     p.content AS post_content, 
+                                     p.url AS post_url, 
+                                     p.domain AS post_domain, 
+                                     p.karma AS post_karma, 
+                                     p.spam AS post_spam, 
                                      DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
-                                     u.id         AS author_id, 
-                                     u.alias      AS author_alias, 
-                                     u.karma      AS author_karma
-                                     FROM posts   AS p
+                                     u.id AS author_id, 
+                                     u.alias AS author_alias, 
+                                     u.karma AS author_karma
+                                     FROM posts AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
                                      ORDER BY p.created_at DESC
                                      LIMIT :limit_amount
                                      OFFSET :offset_amount");
 
-        $stmt->execute(['limit_amount' => $limit, 'offset_amount' => $offset]);
+        $stmt->execute([
+            'limit_amount' => $limit,
+            'offset_amount' => $offset
+        ]);
+
         $results = [];
 
-        // Build results
         while ($row = $stmt->fetch()) {
 
             $author = new User(
@@ -185,6 +262,7 @@ class PostAccess implements IPostAccess
                 $row['post_id'],
                 $row['post_title'],
                 $row['post_slug'],
+                $row['post_content'],
                 $row['post_url'],
                 $row['post_domain'],
                 $row['post_karma'],
@@ -197,7 +275,6 @@ class PostAccess implements IPostAccess
             array_push($results, $post);
         }
 
-        // Check pagination
         if (count($results) == $limit) {
             $hasMore = true;
             array_pop($results);

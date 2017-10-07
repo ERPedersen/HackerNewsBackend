@@ -24,6 +24,11 @@ class Post implements JsonSerializable
     /**
      * @var String
      */
+    private $content;
+
+    /**
+     * @var String
+     */
     private $title;
 
     /**
@@ -67,6 +72,7 @@ class Post implements JsonSerializable
      * @param int $id
      * @param String $title
      * @param String $slug
+     * @param String $content
      * @param String $url
      * @param String $domain
      * @param String $karma
@@ -79,17 +85,20 @@ class Post implements JsonSerializable
         int $id,
         String $title,
         String $slug,
-        String $url,
-        String $domain,
+        String $content = null,
+        String $url = null,
+        String $domain = null,
         String $karma,
         String $createdAt,
         String $userRef = null,
-        $spam = false,
+        bool $spam = false,
         User $user = null
-    ) {
+    )
+    {
         $this->id = $id;
         $this->title = $title;
         $this->slug = $slug;
+        $this->content = $content;
         $this->url = $url;
         $this->domain = $domain;
         $this->karma = $karma;
@@ -145,6 +154,22 @@ class Post implements JsonSerializable
     public function setSlug(String $slug)
     {
         $this->slug = $slug;
+    }
+
+    /**
+     * @return String
+     */
+    public function getContent(): String
+    {
+        return $this->content;
+    }
+
+    /**
+     * @param String $content
+     */
+    public function setContent(String $content)
+    {
+        $this->content = $content;
     }
 
     /**
@@ -273,11 +298,21 @@ class Post implements JsonSerializable
         $post['id'] = $this->id;
         $post['title'] = $this->title;
         $post['slug'] = $this->slug;
-        $post['url'] = $this->url;
-        $post['domain'] = $this->domain;
         $post['karma'] = $this->karma;
         $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
+
+        if (null !== $this->domain) {
+            $post['domain'] = $this->domain;
+        }
+
+        if (null !== $this->url) {
+            $post['url'] = $this->url;
+        }
+
+        if (null !== $this->content) {
+            $post['content'] = $this->content;
+        }
 
         if (null !== $this->user) {
             $post['author'] = $this->user;
