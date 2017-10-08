@@ -5,6 +5,7 @@ use Hackernews\Http\Controllers\CommentController;
 use Hackernews\Http\Controllers\IndexController;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
+use Hackernews\Http\Controllers\TestController;
 use Hackernews\Http\Controllers\UserController;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
@@ -16,6 +17,8 @@ use Hackernews\Http\Middleware\ValidateSignUpCredentials;
 $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
+
+    $app->post("/new", TestController::class . ':postTest');
 
     $app->post("/login", AuthController::class . ':authenticate')
         ->add(new ValidateLoginCredentials());
