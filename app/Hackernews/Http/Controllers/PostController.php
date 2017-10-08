@@ -88,6 +88,8 @@ class PostController
             $post = $postFacade->getPostBySlug($slug);
 
             return $response->withJson(ResponseHandler::success($post), 200);
+        } catch (NoPostsException $e) {
+            return $response->withStatus(204);
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
