@@ -41,6 +41,10 @@ $app->group("", function () use ($app) {
     $app->get("/comments/{id}", CommentController::class . ':getComments')
         ->add(new ValidatePaginationCredentials());
 
+    $app->post("/upvotepost", PostController::class . ':upvotePost')
+        ->add(new \Hackernews\Http\Middleware\ValidateUpvoteCredentials())
+        ->add(new EnforceAuthentication());
+
     $app->options('/{routes:.+}', function ($request, $response, $args) {
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')

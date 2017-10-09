@@ -5,6 +5,8 @@ namespace Hackernews\Http\Controllers;
 use Exception;
 use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoPostsException;
+use Hackernews\Exceptions\NoUserException;
+use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Slim\Http\Request;
@@ -90,6 +92,35 @@ class PostController
             return $response->withJson(ResponseHandler::success($post), 200);
         } catch (NoPostsException $e) {
             return $response->withStatus(204);
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
+    public function upvotePost(Request $request, Response $response)
+    {
+        $postFacade = new PostFacade();
+
+        try {
+            $json = $request->getParsedBody();
+            $userRef = $json['userRef'];
+            $postRef = $json['postRef'];
+
+            $result = $postFacade->upvote($userRef, $postRef);
+
+            return $response->withJson(ResponseHandler::success($result), 200);
+
+        } catch (NoPostsException $e) {
+            return $response->withStatus(204);
+        } catch (NoUserException $e) {
+            return $response->withStatus(204);
+        } catch (WrongValueException $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
