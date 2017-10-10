@@ -122,4 +122,31 @@ class CommentAccess implements ICommentAccess
             }
         }
     }
+
+    public function postCommentWithReference(int $userRef, int $postRef, int $commentRef, string $content)
+    {
+        try {
+            $stmt = DB::conn()->prepare("
+            INSERT INTO comments (user_ref, post_ref, comment_ref, content)
+            VALUES (:user_ref, :post_ref, :comment_ref, :content)
+            ");
+
+            $stmt->execute([
+                'user_ref' => $userRef,
+                'post_ref' => $postRef,
+                'comment_ref' => $commentRef,
+                'content' => $content
+            ]);
+
+            return DB::conn()->lastInsertId();
+
+
+        } catch (PDOException $e) {
+            if ($e->errorInfo[0] == 23000) {
+                throw new ReferenceNotFoundException("Reference was not found to post, user or comment.", 8);
+            } else {
+                throw new Exception("Unhandled exception thrown.",500);
+            }
+        }
+    }
 }

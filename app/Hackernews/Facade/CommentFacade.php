@@ -41,8 +41,26 @@ class CommentFacade implements ICommentFacade
         return $this->access->getCommentsByPostId($postRef, $limit, $page);
     }
 
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param string $content
+     * @return array
+     */
     public function postStandaloneComment(int $userRef, int $postRef, string $content)
     {
         return $this->access->postStandaloneComment($userRef, $postRef, $content);
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param int $commentRef
+     * @param string $content
+     * @return array
+     */
+    public function postCommentWithReference(int $userRef, int $postRef, int $commentRef, string $content)
+    {
+        return $this->access->postCommentWithReference($userRef, $postRef, $commentRef, $content);
     }
 }

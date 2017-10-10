@@ -65,7 +65,7 @@ class CommentController
             if ($commentRef == 0) {
                 $result = $commentFacade->postStandaloneComment($user, $post, $content);
             } else {
-                $result = "fhg";
+                $result = $commentFacade->postCommentWithReference($user, $post, $commentRef, $content);
             }
 
 
