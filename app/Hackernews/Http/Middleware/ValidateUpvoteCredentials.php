@@ -27,13 +27,6 @@ class ValidateUpvoteCredentials
             $json = $request->getParsedBody();
             $errors = [];
 
-            if (empty($json['userRef'])) {
-                array_push($errors, "Please provide a valid user reference for your upvote");
-            } else {
-                if(!preg_match('/^\d+$/', $json['userRef'])) {
-                    array_push($errors, "User reference must be an integer");
-                }
-            }
             if (empty($json['postRef'])) {
                 array_push($errors, "Please provide a valid post reference for your upvote");
             } else {
