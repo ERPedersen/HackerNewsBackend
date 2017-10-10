@@ -10,7 +10,9 @@ namespace Hackernews\Access;
 
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\User;
+use Hackernews\Exceptions\ReferenceNotFoundException;
 use Hackernews\Services\DB;
+use Mockery\Exception;
 use PDOException;
 
 /**
@@ -113,7 +115,11 @@ class CommentAccess implements ICommentAccess
 
 
         } catch (PDOException $e) {
-            throw $e;
+            if ($e->errorInfo[0] == 23000) {
+                throw new ReferenceNotFoundException("Reference was not found to either post or user.", 8);
+            } else {
+                throw new Exception("Unhandled exception thrown.",500);
+            }
         }
     }
 }
