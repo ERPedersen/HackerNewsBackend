@@ -41,6 +41,9 @@ $app->group("", function () use ($app) {
     $app->get("/comments/{id}", CommentController::class . ':getComments')
         ->add(new ValidatePaginationCredentials());
 
+    $app->post("/comment", CommentController::class . ':createComment')
+        ->add(new ValidateCreateCommentCredentials());
+
     $app->options('/{routes:.+}', function ($request, $response, $args) {
         return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
