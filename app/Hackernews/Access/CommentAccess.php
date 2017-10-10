@@ -94,4 +94,26 @@ class CommentAccess implements ICommentAccess
             throw $e;
         }
     }
+
+    public function postStandaloneComment(int $userRef, int $postRef, string $content)
+    {
+        try {
+            $stmt = DB::conn()->prepare("
+            INSERT INTO comments (user_ref, post_ref, content)
+            VALUES (:user_ref, :post_ref, :content)
+            ");
+
+            $stmt->execute([
+                'user_ref' => $userRef,
+                'post_ref' => $postRef,
+                'content' => $content
+            ]);
+
+            return DB::conn()->lastInsertId();
+
+
+        } catch (PDOException $e) {
+            throw $e;
+        }
+    }
 }

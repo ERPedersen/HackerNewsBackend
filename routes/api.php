@@ -12,6 +12,7 @@ use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
 use Hackernews\Http\Middleware\ValidateLoginCredentials;
 use Hackernews\Http\Middleware\ValidatePaginationCredentials;
 use Hackernews\Http\Middleware\ValidateSignUpCredentials;
+use Hackernews\Http\Middleware\ValidateCreateCommentCredentials;
 
 $app->group("", function () use ($app) {
 
@@ -42,7 +43,8 @@ $app->group("", function () use ($app) {
         ->add(new ValidatePaginationCredentials());
 
     $app->post("/comment", CommentController::class . ':createComment')
-        ->add(new ValidateCreateCommentCredentials());
+        ->add(new ValidateCreateCommentCredentials())
+        ->add(new EnforceAuthentication());
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {
         return $response
