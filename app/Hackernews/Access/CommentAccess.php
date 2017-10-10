@@ -10,6 +10,7 @@ namespace Hackernews\Access;
 
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\User;
+use Hackernews\Exceptions\PostNotFoundException;
 use Hackernews\Exceptions\ReferenceNotFoundException;
 use Hackernews\Services\DB;
 use Mockery\Exception;
@@ -168,15 +169,16 @@ class CommentAccess implements ICommentAccess
                     $row['comment_content'],
                     $row['comment_karma'],
                     $row['comment_spam'],
-                    $row['comment_created_at']
+                    $row['comment_created_at'],
+                    $user
                 );
 
             }
 
-            return $comment
+            return $comment;
 
-        } catch (PDOException £e) {
-
+        } catch (PDOException $e) {
+            throw new PostNotFoundException("No post found by this ID.", 404);
         }
     }
 
@@ -186,7 +188,7 @@ class CommentAccess implements ICommentAccess
      * @param int $postRef
      * @param int $commentRef
      * @param string $content
-     * @return array
+     * @return string
      */
     public function postCommentWithReference(int $userRef, int $postRef, int $commentRef, string $content)
     {
