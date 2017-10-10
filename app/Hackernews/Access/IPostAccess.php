@@ -36,7 +36,7 @@ interface IPostAccess
      * @param int $postRef
      * @return mixed
      */
-    public function getUpvote(int $userRef, int $postRef);
+    public function getVote(int $userRef, int $postRef);
 
     /**
      * @param int $userRef
@@ -57,5 +57,20 @@ interface IPostAccess
      * @param int $postRef
      * @return mixed
      */
-    public function changeVote(int $userRef, int $postRef);
+    public function addDownvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function removeDownvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param int $val
+     * @return mixed
+     */
+    public function changeVote(int $userRef, int $postRef, int $val);
 }

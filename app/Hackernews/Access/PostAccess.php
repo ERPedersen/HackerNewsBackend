@@ -334,7 +334,7 @@ class PostAccess implements IPostAccess
      * @return int
      * @throws Exception
      */
-    public function getUpvote(int $userRef, int $postRef)
+    public function getVote(int $userRef, int $postRef)
     {
         $stmt = DB::conn()->prepare("SELECT user_ref, post_ref, val FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :post_ref");
         $stmt->execute([
@@ -425,17 +425,74 @@ class PostAccess implements IPostAccess
      * @throws NoPostsException
      * @throws NoUserException
      */
-    public function changeVote(int $userRef, int $postRef)
+    public function addDownvote(int $userRef, int $postRef) {
+        try {
+            // Inserts a new upvote into the junction table in the database.
+            DB::conn()->prepare("INSERT INTO votes_users_posts (user_ref, post_ref, val) VALUES (:user_ref, :post_ref, :val)")->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $postRef,
+                "val" => -1
+            ]);
+
+            return "downvote added";
+        }catch (PDOException $e) {
+            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!") ;
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function removeDownvote(int $userRef, int $postRef)
     {
         try {
-            // Updates a downvote into an upvote.
-            DB::conn()->prepare("UPDATE votes_users_posts SET val = :val WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
-                "val" => 1,
+            // Removes an downvote from the junction table in the database.
+            DB::conn()->prepare("DELETE FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
                 "user_ref" => $userRef,
                 "post_ref" => $postRef
             ]);
 
-            return "downvote changed to upvote";
+            return "downvote removed!";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param int $val
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function changeVote(int $userRef, int $postRef, int $val)
+    {
+        try {
+            // Updates a downvote into an upvote.
+            DB::conn()->prepare("UPDATE votes_users_posts SET val = :val WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
+                "val" => $val,
+                "user_ref" => $userRef,
+                "post_ref" => $postRef
+            ]);
+
+            return ($val == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
