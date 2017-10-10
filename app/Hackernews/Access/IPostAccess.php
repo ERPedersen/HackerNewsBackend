@@ -30,4 +30,32 @@ interface IPostAccess
      * @return String
      */
     public function getUniqueSlug(String $slug);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function getUpvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function addUpvote(int $userRef,int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function removeUpvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function changeVote(int $userRef, int $postRef);
 }
