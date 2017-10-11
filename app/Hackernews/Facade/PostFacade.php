@@ -119,7 +119,7 @@ class PostFacade implements IPostFacade
             } else {
                 $this->access->changeVote($userRef, $postRef, 1);
             }
-            return $this->access->getPostById($userRef);
+            return $this->access->getPostById($postRef);
         } catch (Exception $e) {
             throw  $e;
         }
@@ -147,7 +147,7 @@ class PostFacade implements IPostFacade
             } else {
                 $this->access->changeVote($userRef, $postRef, -1);
             }
-            return $this->access->getPostById($userRef);
+            return $this->access->getPostById($postRef);
         } catch (Exception $e) {
             throw $e;
         }
