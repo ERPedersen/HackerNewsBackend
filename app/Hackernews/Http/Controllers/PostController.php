@@ -53,6 +53,11 @@ class PostController
         }
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public function getPosts(Request $request, Response $response)
     {
 
@@ -108,10 +113,39 @@ class PostController
 
         try {
             $json = $request->getParsedBody();
-            $userRef = $json['userRef'];
+            $userRef = $request->getAttribute('user_id');
             $postRef = $json['postRef'];
 
             $result = $postFacade->upvote($userRef, $postRef);
+
+            return $response->withJson(ResponseHandler::success($result), 200);
+
+        } catch (NoPostsException $e) {
+            return $response->withStatus(204);
+        } catch (NoUserException $e) {
+            return $response->withStatus(204);
+        } catch (WrongValueException $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
+    public function downvotePost(Request $request, Response $response)
+    {
+        $postFacade = new PostFacade();
+
+        try {
+            $json = $request->getParsedBody();
+            $userRef = $request->getAttribute('user_id');
+            $postRef = $json['postRef'];
+
+            $result = $postFacade->downvote($userRef, $postRef);
 
             return $response->withJson(ResponseHandler::success($result), 200);
 

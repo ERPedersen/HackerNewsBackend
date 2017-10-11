@@ -110,19 +110,46 @@ class PostFacade implements IPostFacade
             // If 0 a new upvote has to be created.
             // If 1 there is already an upvote and it has to be removed.
             // If -1 there is a downvote, and it has to be changed to an upvote.
-            $choice = $this->access->getUpvote($userRef, $postRef);
+            $choice = $this->access->getVote($userRef, $postRef);
 
             if ($choice == 0) {
                 return $this->access->addUpvote($userRef, $postRef);
             } else if ($choice == 1) {
                 return $this->access->removeUpvote($userRef, $postRef);
             } else {
-                return $this->access->changeVote($userRef, $postRef);
+                return $this->access->changeVote($userRef, $postRef, 1);
             }
         } catch (Exception $e) {
             throw  $e;
         }
 
 
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws Exception
+     */
+    public function downvote(int $userRef, int $postRef)
+    {
+        try {
+            // Choice will either be 1, 0 or -1.
+            // If 0 a new downvote has to be created.
+            // If 1 there is an upvote and it has to be changed to a downvote.
+            // If -1 there is already a downvote and it has to be removed.
+            $choice = $this->access->getVote($userRef, $postRef);
+
+            if ($choice == 0) {
+                return $this->access->addDownvote($userRef, $postRef);
+            } else if ($choice == -1) {
+                return $this->access->removeDownvote($userRef, $postRef);
+            } else {
+                return $this->access->changeVote($userRef, $postRef, -1);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }

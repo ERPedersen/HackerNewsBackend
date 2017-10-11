@@ -29,20 +29,24 @@ $app->group("", function () use ($app) {
     $app->get("/admin", AdminController::class . ':admin')
         ->add(new EnforceAuthentication());
 
-    $app->post("/post", PostController::class . ':createPost')
+    $app->post("/hackerpost", PostController::class . ':createPost')
         ->add(new ValidateCreatePostCredentials())
         ->add(new EnforceAuthentication());
 
-    $app->get("/post", PostController::class . ':getPosts')
+    $app->get("/hackerpost", PostController::class . ':getPosts')
         ->add(new ValidatePaginationCredentials());
 
-    $app->get("/post/{slug}", PostController::class . ':getPost');
+    $app->get("/hackerpost/{slug}", PostController::class . ':getPost');
 
     $app->get("/comments/{id}", CommentController::class . ':getComments')
         ->add(new ValidatePaginationCredentials());
 
     $app->post("/upvotepost", PostController::class . ':upvotePost')
-        ->add(new \Hackernews\Http\Middleware\ValidateUpvoteCredentials())
+        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
+        ->add(new EnforceAuthentication());
+
+    $app->post("/downvotepost", PostController::class . ':downvotePost')
+        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
         ->add(new EnforceAuthentication());
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {

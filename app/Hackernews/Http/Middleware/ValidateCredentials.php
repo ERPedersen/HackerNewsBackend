@@ -5,14 +5,10 @@ namespace Hackernews\Http\Middleware;
 
 use Hackernews\Exceptions\ValidationException;
 use Hackernews\Http\Handlers\ResponseHandler;
-use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Http\Request;
 
-/**
- * Class ValidateUpvoteCredentials
- * @package Hackernews\Http\Middleware
- */
-class ValidateUpvoteCredentials
+class ValidateCredentials
 {
     /**
      * Validates the required parameters when upvoting a post.
@@ -27,13 +23,6 @@ class ValidateUpvoteCredentials
             $json = $request->getParsedBody();
             $errors = [];
 
-            if (empty($json['userRef'])) {
-                array_push($errors, "Please provide a valid user reference for your upvote");
-            } else {
-                if(!preg_match('/^\d+$/', $json['userRef'])) {
-                    array_push($errors, "User reference must be an integer");
-                }
-            }
             if (empty($json['postRef'])) {
                 array_push($errors, "Please provide a valid post reference for your upvote");
             } else {
