@@ -102,10 +102,11 @@ class PostAccess implements IPostAccess
      * by slug.
      *
      * @param int $id
+     * @param int $userRef
      * @return Post|mixed
      * @throws \Exception|\PDOException
      */
-    public function getPostById(int $id)
+    public function getPostById(int $id, int $userRef)
     {
 
         $stmt = DB::conn()->prepare("SELECT 
@@ -120,13 +121,17 @@ class PostAccess implements IPostAccess
                                      DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
-                                     u.karma AS author_karma
+                                     u.karma AS author_karma,
+                                     v.val AS my_vote
                                      FROM posts AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
-                                     WHERE  p.id = :id");
+                                     LEFT JOIN votes_users_posts v
+                                     ON v.post_ref = p.id AND v.user_ref = :userRef
+                                     WHERE p.id = :id
+                                     ");
 
-        $stmt->execute(['id' => $id]);
+        $stmt->execute(['id' => $id, 'userRef' => $userRef]);
 
         if ($stmt->rowCount() == 0) {
             throw new NoPostsException("No results found", 0);
@@ -151,7 +156,8 @@ class PostAccess implements IPostAccess
             $row['post_created_at'],
             $row['author_id'],
             $row['post_spam'],
-            $author
+            $author,
+            isset($row['my_vote']) ? $row['my_vote'] : 0
         );
 
         return $post;
