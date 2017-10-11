@@ -100,7 +100,7 @@ class PostFacade implements IPostFacade
     /**
      * @param int $userRef
      * @param int $postRef
-     * @return string
+     * @return Post|mixed
      * @throws Exception
      */
     public function upvote(int $userRef, int $postRef)
@@ -113,23 +113,22 @@ class PostFacade implements IPostFacade
             $choice = $this->access->getVote($userRef, $postRef);
 
             if ($choice == 0) {
-                return $this->access->addUpvote($userRef, $postRef);
+                $this->access->addUpvote($userRef, $postRef);
             } else if ($choice == 1) {
-                return $this->access->removeUpvote($userRef, $postRef);
+                $this->access->removeUpvote($userRef, $postRef);
             } else {
-                return $this->access->changeVote($userRef, $postRef, 1);
+                $this->access->changeVote($userRef, $postRef, 1);
             }
+            return $this->access->getPostById($userRef);
         } catch (Exception $e) {
             throw  $e;
         }
-
-
     }
 
     /**
      * @param int $userRef
      * @param int $postRef
-     * @return string
+     * @return Post|mixed
      * @throws Exception
      */
     public function downvote(int $userRef, int $postRef)
@@ -142,12 +141,13 @@ class PostFacade implements IPostFacade
             $choice = $this->access->getVote($userRef, $postRef);
 
             if ($choice == 0) {
-                return $this->access->addDownvote($userRef, $postRef);
+                $this->access->addDownvote($userRef, $postRef);
             } else if ($choice == -1) {
-                return $this->access->removeDownvote($userRef, $postRef);
+                $this->access->removeDownvote($userRef, $postRef);
             } else {
-                return $this->access->changeVote($userRef, $postRef, -1);
+                $this->access->changeVote($userRef, $postRef, -1);
             }
+            return $this->access->getPostById($userRef);
         } catch (Exception $e) {
             throw $e;
         }
