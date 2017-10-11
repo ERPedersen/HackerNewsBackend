@@ -42,11 +42,11 @@ $app->group("", function () use ($app) {
         ->add(new ValidatePaginationCredentials());
 
     $app->post("/upvotepost", PostController::class . ':upvotePost')
-        ->add(new \Hackernews\Http\Middleware\ValidateUpvoteCredentials())
+        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
         ->add(new EnforceAuthentication());
 
     $app->post("/downvotepost", PostController::class . ':downvotePost')
-        ->add(new \Hackernews\Http\Middleware\ValidateDownvoteCredentials())
+        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
         ->add(new EnforceAuthentication());
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {
