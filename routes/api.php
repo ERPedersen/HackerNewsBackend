@@ -43,7 +43,8 @@ $app->group("", function () use ($app) {
         ->add(new ValidatePaginationCredentials());
 
     $app->post("/comment", CommentController::class . ':createComment')
-        ->add(new ValidateCreateCommentCredentials());
+        ->add(new ValidateCreateCommentCredentials())
+        ->add(new EnforceAuthentication());
       
     $app->post("/upvotepost", PostController::class . ':upvotePost')
         ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
