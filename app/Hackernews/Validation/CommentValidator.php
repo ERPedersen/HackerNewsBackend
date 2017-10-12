@@ -19,6 +19,9 @@ class CommentValidator
             return false;
         }
 
+        if (!is_string($body)) {
+            return false;
+        }
 
         return true;
     }

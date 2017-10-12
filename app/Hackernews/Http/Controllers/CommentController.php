@@ -53,6 +53,7 @@ class CommentController
     public function createComment(Request $request, Response $response)
     {
         try {
+
             $json = $request->getParsedBody();
 
             $content = $json['content'];
