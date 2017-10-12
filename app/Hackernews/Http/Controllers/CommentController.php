@@ -55,9 +55,9 @@ class CommentController
         try {
 
             $json = $request->getParsedBody();
+            $user = $request->getAttribute('user_id');
 
             $content = $json['content'];
-            $user = $json['user_ref'];
             $post = $json['post_ref'];
             $commentRef = $json['comment_ref'];
 
