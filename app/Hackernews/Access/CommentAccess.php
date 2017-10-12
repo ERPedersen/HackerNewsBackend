@@ -59,8 +59,8 @@ class CommentAccess implements ICommentAccess
             while ($row = $stmt->fetch()) {
                 $user = new User(
                     $row['user_id'],
-                    $row['user_karma'],
-                    $row['user_alias']
+                    $row['user_alias'],
+                    $row['user_karma']
                 );
 
                 $comment = new Comment(
