@@ -98,17 +98,18 @@ class CommentAccess implements ICommentAccess
         }
     }
 
-    public function postStandaloneComment(int $userRef, int $postRef, string $content)
+    public function postComment(int $userRef, int $postRef, string $content, int $commentRef=null)
     {
         try {
             $stmt = DB::conn()->prepare("
-            INSERT INTO comments (user_ref, post_ref, content)
-            VALUES (:user_ref, :post_ref, :content)
+            INSERT INTO comments (user_ref, post_ref, comment_ref, content)
+            VALUES (:user_ref, :post_ref, :comment_ref, :content)
             ");
 
             $stmt->execute([
                 'user_ref' => $userRef,
                 'post_ref' => $postRef,
+                'comment_ref' => $commentRef,
                 'content' => $content
             ]);
 
@@ -182,38 +183,4 @@ class CommentAccess implements ICommentAccess
         }
     }
 
-
-    /**
-     * @param int $userRef
-     * @param int $postRef
-     * @param int $commentRef
-     * @param string $content
-     * @return string
-     */
-    public function postCommentWithReference(int $userRef, int $postRef, int $commentRef, string $content)
-    {
-        try {
-            $stmt = DB::conn()->prepare("
-            INSERT INTO comments (user_ref, post_ref, comment_ref, content)
-            VALUES (:user_ref, :post_ref, :comment_ref, :content)
-            ");
-
-            $stmt->execute([
-                'user_ref' => $userRef,
-                'post_ref' => $postRef,
-                'comment_ref' => $commentRef,
-                'content' => $content
-            ]);
-
-            return DB::conn()->lastInsertId();
-
-
-        } catch (PDOException $e) {
-            if ($e->errorInfo[0] == 23000) {
-                throw new ReferenceNotFoundException("Reference was not found to post, user or comment.", 8);
-            } else {
-                throw new Exception("Unhandled exception thrown.",500);
-            }
-        }
-    }
 }

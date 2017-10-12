@@ -64,9 +64,9 @@ class CommentController
             $commentFacade = new CommentFacade();
 
             if ($commentRef == 0) {
-                $result = $commentFacade->postStandaloneComment($user, $post, $content);
+                $result = $commentFacade->postComment($user, $post, $content);
             } else {
-                $result = $commentFacade->postCommentWithReference($user, $post, $commentRef, $content);
+                $result = $commentFacade->postComment($user, $post, $content, $commentRef);
             }
 
 

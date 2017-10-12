@@ -47,9 +47,9 @@ class CommentFacade implements ICommentFacade
      * @param string $content
      * @return array
      */
-    public function postStandaloneComment(int $userRef, int $postRef, string $content)
+    public function postComment(int $userRef, int $postRef, string $content, int $commentRef=null)
     {
-        $commentId = $this->access->postStandaloneComment($userRef, $postRef, $content);
+        $commentId = $this->access->postComment($userRef, $postRef, $content, $commentRef);
 
         return [
             'comment_id' => $commentId,
@@ -57,15 +57,4 @@ class CommentFacade implements ICommentFacade
         ];
     }
 
-    /**
-     * @param int $userRef
-     * @param int $postRef
-     * @param int $commentRef
-     * @param string $content
-     * @return array
-     */
-    public function postCommentWithReference(int $userRef, int $postRef, int $commentRef, string $content)
-    {
-        return $this->access->postCommentWithReference($userRef, $postRef, $commentRef, $content);
-    }
 }
