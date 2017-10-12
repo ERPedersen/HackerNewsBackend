@@ -32,7 +32,7 @@ class ValidateCreateCommentCredentials
                 }
             }
 
-            if (empty($json['user_ref'])) {
+            if (empty($request->getAttribute('user_id'))) {
                 array_push($errors, "User not found. Are you logged in?");
             }
 
