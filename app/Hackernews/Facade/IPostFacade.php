@@ -27,4 +27,11 @@ interface IPostFacade
      * @return array
      */
     public function getPostBySlug($slug);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function upvote(int $userRef,int $postRef);
 }
