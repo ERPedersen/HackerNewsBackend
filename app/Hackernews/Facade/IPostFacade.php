@@ -18,15 +18,19 @@ interface IPostFacade
     public function createPost(String $title, String $url, int $userRef);
 
     /**
+     * @param $limit
+     * @param $page
+     * @param int $userRef
      * @return mixed
      */
-    public function getPosts($limit, $page);
+    public function getPosts($limit, $page, int $userRef);
 
     /**
      * @param $slug
-     * @return array
+     * @param int $userRef
+     * @return mixed
      */
-    public function getPostBySlug($slug);
+    public function getPostBySlug($slug, int $userRef);
 
     /**
      * @param int $userRef
