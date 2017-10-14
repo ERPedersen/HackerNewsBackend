@@ -15,6 +15,7 @@ use Hackernews\Http\Middleware\ValidateKarmaPoints;
 use Hackernews\Http\Middleware\ValidateLoginCredentials;
 use Hackernews\Http\Middleware\ValidatePaginationCredentials;
 use Hackernews\Http\Middleware\ValidateSignUpCredentials;
+use Hackernews\Http\Middleware\ValidateCreateCommentCredentials;
 
 $app->group("", function () use ($app) {
 
@@ -46,6 +47,10 @@ $app->group("", function () use ($app) {
     $app->get("/comments/{id}", CommentController::class . ':getComments')
         ->add(new ValidatePaginationCredentials());
 
+    $app->post("/comment", CommentController::class . ':createComment')
+        ->add(new ValidateCreateCommentCredentials())
+        ->add(new EnforceAuthentication());
+      
     $app->post("/upvotepost", PostController::class . ':upvotePost')
         ->add(new ValidateCredentials())
         ->add(new EnforceAuthentication());

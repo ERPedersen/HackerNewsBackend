@@ -7,6 +7,7 @@ use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoPostsException;
 use Hackernews\Exceptions\NoUserException;
 use Hackernews\Exceptions\WrongValueException;
+use Hackernews\Facade\CommentFacade;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Slim\Http\Request;
@@ -91,12 +92,20 @@ class PostController
     {
         try {
             $slug = $request->getAttribute('slug');
+            $userRef = $request->getAttribute("user_id");  
+            
             $postFacade = new PostFacade();
-            $userRef = $request->getAttribute("user_id");
+            $commentFacade = new CommentFacade();
 
             $post = $postFacade->getPostBySlug($slug, $userRef);
+            $comments = $commentFacade->getCommentByPostId($post->getId());
 
-            return $response->withJson(ResponseHandler::success($post), 200);
+            $data = [
+                'post' => $post,
+                'comments' => $comments
+            ];
+
+            return $response->withJson(ResponseHandler::success($data), 200);
         } catch (NoPostsException $e) {
             return $response->withStatus(204);
         } catch (Exception $e) {
