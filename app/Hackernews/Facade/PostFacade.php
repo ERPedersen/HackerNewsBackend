@@ -48,7 +48,7 @@ class PostFacade implements IPostFacade
         }
 
         try {
-            return $this->access->getPostById($inserted_id);
+            return $this->access->getPostById($inserted_id, $userRef);
         } catch (Exception $e) {
             throw $e;
         }
@@ -72,29 +72,33 @@ class PostFacade implements IPostFacade
         }
 
         try {
-            return $this->access->getPostById($inserted_id);
+            return $this->access->getPostById($inserted_id, $userRef);
         } catch (Exception $e) {
             throw $e;
         }
     }
 
     /**
+     * @param int $limit
+     * @param int $page
+     * @param int $userRef
      * @return mixed
      */
-    public function getPosts($limit = 5, $page = 1)
+    public function getPosts($limit = 5, $page = 1, int $userRef)
     {
-        return $this->access->getPosts($limit, $page);
+        return $this->access->getPosts($limit, $page, $userRef);
     }
 
     /**
      * @param $slug
+     * @param int $userRef
      * @return Post
      */
-    public function getPostBySlug($slug)
+    public function getPostBySlug($slug, int $userRef)
     {
         $slug = mb_strtolower($slug, 'UTF-8');
 
-        return $this->access->getPostBySlug($slug);
+        return $this->access->getPostBySlug($slug, $userRef);
     }
 
     /**
@@ -119,7 +123,7 @@ class PostFacade implements IPostFacade
             } else {
                 $this->access->changeVote($userRef, $postRef, 1);
             }
-            return $this->access->getPostById($postRef);
+            return $this->access->getPostById($postRef, $userRef);
         } catch (Exception $e) {
             throw  $e;
         }
@@ -147,7 +151,7 @@ class PostFacade implements IPostFacade
             } else {
                 $this->access->changeVote($userRef, $postRef, -1);
             }
-            return $this->access->getPostById($postRef);
+            return $this->access->getPostById($postRef, $userRef);
         } catch (Exception $e) {
             throw $e;
         }

@@ -64,14 +64,15 @@ class PostController
 
         $limit = $request->getParam('limit');
         $page = $request->getParam('page');
+        $userRef = $request->getAttribute("user_id");
 
         try {
             $postFacade = new PostFacade();
 
             if ($limit && $page) {
-                $result = $postFacade->getPosts($limit, $page);
+                $result = $postFacade->getPosts($limit, $page, $userRef);
             } else {
-                $result = $postFacade->getPosts();
+                $result = $postFacade->getPosts(5, 1, $userRef);
             }
 
             return $response->withJson(ResponseHandler::success($result));
@@ -91,18 +92,20 @@ class PostController
     {
         try {
             $slug = $request->getAttribute('slug');
+            $userRef = $request->getAttribute("user_id");  
+            
             $postFacade = new PostFacade();
             $commentFacade = new CommentFacade();
 
-            $post = $postFacade->getPostBySlug($slug);
+            $post = $postFacade->getPostBySlug($slug, $userRef);
             $comments = $commentFacade->getCommentByPostId($post->getId());
 
-            $postWithComments = [
+            $data = [
                 'post' => $post,
                 'comments' => $comments
             ];
 
-            return $response->withJson(ResponseHandler::success($postWithComments), 200);
+            return $response->withJson(ResponseHandler::success($data), 200);
         } catch (NoPostsException $e) {
             return $response->withStatus(204);
         } catch (Exception $e) {

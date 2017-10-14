@@ -21,9 +21,10 @@ interface IPostAccess
 
     /**
      * @param int $id
+     * @param int $userRef
      * @return mixed
      */
-    public function getPostById(int $id);
+    public function getPostById(int $id, int $userRef);
 
     /**
      * @param String $slug

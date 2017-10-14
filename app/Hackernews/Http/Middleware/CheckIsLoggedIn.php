@@ -2,18 +2,16 @@
 
 namespace Hackernews\Http\Middleware;
 
-use Hackernews\Exceptions\AuthException;
-use Hackernews\Http\Handlers\ResponseHandler;
 use Hackernews\Services\TokenService;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
 /**
- * Class EnforceAuthentication
+ * Class CheckIsLoggedIn
  *
  * @package Hackernews\Http\Middleware
  */
-class EnforceAuthentication
+class CheckIsLoggedIn
 {
     /**
      * @param \Slim\Http\Request $request
@@ -44,6 +42,8 @@ class EnforceAuthentication
                 return $next($request, $response);
             }
         }
-        return $response->withStatus(401)->withJson(ResponseHandler::error(new AuthException("You do not have permission to request this resource", 5)));
+
+        $request = $request->withAttribute("user_id", -1);
+        return $next($request, $response);
     }
 }

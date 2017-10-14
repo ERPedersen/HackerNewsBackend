@@ -6,9 +6,12 @@ use Hackernews\Http\Controllers\IndexController;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
 use Hackernews\Http\Controllers\UserController;
+use Hackernews\Http\Middleware\CheckIsLoggedIn;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
+use Hackernews\Http\Middleware\ValidateCredentials;
+use Hackernews\Http\Middleware\ValidateKarmaPoints;
 use Hackernews\Http\Middleware\ValidateLoginCredentials;
 use Hackernews\Http\Middleware\ValidatePaginationCredentials;
 use Hackernews\Http\Middleware\ValidateSignUpCredentials;
@@ -35,9 +38,11 @@ $app->group("", function () use ($app) {
         ->add(new EnforceAuthentication());
 
     $app->get("/hackerpost", PostController::class . ':getPosts')
-        ->add(new ValidatePaginationCredentials());
+        ->add(new ValidatePaginationCredentials())
+        ->add(new CheckIsLoggedIn());
 
-    $app->get("/hackerpost/{slug}", PostController::class . ':getPost');
+    $app->get("/hackerpost/{slug}", PostController::class . ':getPost')
+        ->add(new CheckIsLoggedIn());
 
     $app->get("/comments/{id}", CommentController::class . ':getComments')
         ->add(new ValidatePaginationCredentials());
@@ -47,11 +52,12 @@ $app->group("", function () use ($app) {
         ->add(new EnforceAuthentication());
       
     $app->post("/upvotepost", PostController::class . ':upvotePost')
-        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
+        ->add(new ValidateCredentials())
         ->add(new EnforceAuthentication());
 
     $app->post("/downvotepost", PostController::class . ':downvotePost')
-        ->add(new \Hackernews\Http\Middleware\ValidateCredentials())
+        ->add(new ValidateKarmaPoints())
+        ->add(new ValidateCredentials())
         ->add(new EnforceAuthentication());
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {
