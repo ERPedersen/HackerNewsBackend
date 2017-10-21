@@ -24,7 +24,7 @@ $app->group("", function () use ($app) {
     $app->post("/login", AuthController::class . ':authenticate')
         ->add(new ValidateLoginCredentials());
 
-    $app->post("/signup", AuthController::class . ':signUp')
+    $app->post("/sign-up", AuthController::class . ':signUp')
         ->add(new ValidateSignUpCredentials());
 
     $app->get("/profile", UserController::class . ':getUserData')
@@ -33,32 +33,36 @@ $app->group("", function () use ($app) {
     $app->get("/admin", AdminController::class . ':admin')
         ->add(new EnforceAuthentication());
 
-    $app->post("/hackerpost", PostController::class . ':createPost')
-        ->add(new ValidateCreatePostCredentials())
-        ->add(new EnforceAuthentication());
+    $app->group('/posts', function () use ($app) {
+	    $app->get("", PostController::class . ':getPosts')
+	        ->add(new ValidatePaginationCredentials())
+	        ->add(new CheckIsLoggedIn());
 
-    $app->get("/hackerpost", PostController::class . ':getPosts')
-        ->add(new ValidatePaginationCredentials())
-        ->add(new CheckIsLoggedIn());
+	    $app->post("", PostController::class . ':createPost')
+	        ->add(new ValidateCreatePostCredentials())
+	        ->add(new EnforceAuthentication());
 
-    $app->get("/hackerpost/{slug}", PostController::class . ':getPost')
-        ->add(new CheckIsLoggedIn());
+	    $app->get("/{slug}", PostController::class . ':getPost')
+	        ->add(new CheckIsLoggedIn());
 
-    $app->get("/comments/{id}", CommentController::class . ':getComments')
-        ->add(new ValidatePaginationCredentials());
+	    $app->post("/upvote", PostController::class . ':upvotePost')
+	        ->add(new ValidateCredentials())
+	        ->add(new EnforceAuthentication());
 
-    $app->post("/comment", CommentController::class . ':createComment')
-        ->add(new ValidateCreateCommentCredentials())
-        ->add(new EnforceAuthentication());
-      
-    $app->post("/upvotepost", PostController::class . ':upvotePost')
-        ->add(new ValidateCredentials())
-        ->add(new EnforceAuthentication());
+	    $app->post("/downvote", PostController::class . ':downvotePost')
+	        ->add(new ValidateKarmaPoints())
+	        ->add(new ValidateCredentials())
+	        ->add(new EnforceAuthentication());
+    });
 
-    $app->post("/downvotepost", PostController::class . ':downvotePost')
-        ->add(new ValidateKarmaPoints())
-        ->add(new ValidateCredentials())
-        ->add(new EnforceAuthentication());
+    $app->group('/comments', function() use ($app) {
+	    $app->post("", CommentController::class . ':createComment')
+	        ->add(new ValidateCreateCommentCredentials())
+	        ->add(new EnforceAuthentication());
+
+		$app->get("/{id}", CommentController::class . ':getComments')
+		    ->add(new ValidatePaginationCredentials());
+    });
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {
         return $response

@@ -328,7 +328,7 @@ class Post implements JsonSerializable
         $post['karma'] = $this->karma;
         $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
-        $post['myVote'] = $this->myVote;
+        $post['my_vote'] = $this->myVote;
 
         if (null !== $this->domain) {
             $post['domain'] = $this->domain;

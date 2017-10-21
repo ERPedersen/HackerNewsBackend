@@ -125,7 +125,7 @@ class PostController
         try {
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
-            $postRef = $json['postRef'];
+            $postRef = $json['post_ref'];
 
             $result = $postFacade->upvote($userRef, $postRef);
 
@@ -154,7 +154,7 @@ class PostController
         try {
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
-            $postRef = $json['postRef'];
+            $postRef = $json['post_ref'];
 
             $result = $postFacade->downvote($userRef, $postRef);
 

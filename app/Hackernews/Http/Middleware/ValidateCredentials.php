@@ -23,10 +23,10 @@ class ValidateCredentials
             $json = $request->getParsedBody();
             $errors = [];
 
-            if (empty($json['postRef'])) {
+            if (empty($json['post_ref'])) {
                 array_push($errors, "Please provide a valid post reference for your vote");
             } else {
-                if(!preg_match('/^\d+$/', $json['postRef'])) {
+                if(!preg_match('/^\d+$/', $json['post_ref'])) {
                     array_push($errors, "Post reference must be an integer");
                 }
             }
