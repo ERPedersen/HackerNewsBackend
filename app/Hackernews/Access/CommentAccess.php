@@ -288,7 +288,7 @@ class CommentAccess implements ICommentAccess
     {
         try {
             // Removes an upvote from the junction table in the database.
-            DB::conn()->prepare("DELETE FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :comment_ref")->execute([
+            DB::conn()->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
             ]);
@@ -297,7 +297,7 @@ class CommentAccess implements ICommentAccess
         }catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
-            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
                 throw new NoCommentsException("The Comment doesn't exists!");
             } else {
                 throw $e;
@@ -325,7 +325,7 @@ class CommentAccess implements ICommentAccess
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
-            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
                 throw new NoCommentsException("The Comment doesn't exists!");
             } else {
                 throw $e;
@@ -348,15 +348,15 @@ class CommentAccess implements ICommentAccess
             DB::conn()->prepare("UPDATE votes_users_comments SET val = :val WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
                 "val" => $value,
                 "user_ref" => $userRef,
-                "post_ref" => $commentRef
+                "comment_ref" => $commentRef
             ]);
 
             return ($value == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
-            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoCommentsException("The Post doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!");
             } else {
                 throw $e;
             }
