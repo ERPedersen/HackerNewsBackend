@@ -24,6 +24,11 @@ class Post implements JsonSerializable
     /**
      * @var String
      */
+    private $content;
+
+    /**
+     * @var String
+     */
     private $title;
 
     /**
@@ -62,11 +67,17 @@ class Post implements JsonSerializable
     private $user;
 
     /**
+     * @var int
+     */
+    private $myVote;
+
+    /**
      * Post constructor.
      *
      * @param int $id
      * @param String $title
      * @param String $slug
+     * @param String $content
      * @param String $url
      * @param String $domain
      * @param String $karma
@@ -74,22 +85,28 @@ class Post implements JsonSerializable
      * @param String $userRef
      * @param bool $spam
      * @param User $user
+     * $param int myVote
+     * @param int|null $myVote
      */
     public function __construct(
         int $id,
         String $title,
         String $slug,
-        String $url,
-        String $domain,
+        String $content = null,
+        String $url = null,
+        String $domain = null,
         String $karma,
         String $createdAt,
         String $userRef = null,
-        $spam = false,
-        User $user = null
-    ) {
+        bool $spam = false,
+        User $user = null,
+        int $myVote = 0
+    )
+    {
         $this->id = $id;
         $this->title = $title;
         $this->slug = $slug;
+        $this->content = $content;
         $this->url = $url;
         $this->domain = $domain;
         $this->karma = $karma;
@@ -97,6 +114,7 @@ class Post implements JsonSerializable
         $this->userRef = $userRef;
         $this->spam = $spam;
         $this->user = $user;
+        $this->myVote = $myVote;
     }
 
     /**
@@ -145,6 +163,22 @@ class Post implements JsonSerializable
     public function setSlug(String $slug)
     {
         $this->slug = $slug;
+    }
+
+    /**
+     * @return String
+     */
+    public function getContent(): String
+    {
+        return $this->content;
+    }
+
+    /**
+     * @param String $content
+     */
+    public function setContent(String $content)
+    {
+        $this->content = $content;
     }
 
     /**
@@ -260,6 +294,24 @@ class Post implements JsonSerializable
     }
 
     /**
+     * @return int
+     */
+    public function getMyVote(): int
+    {
+        return $this->myVote;
+    }
+
+    /**
+     * @param int $myVote
+     */
+    public function setMyVote(int $myVote)
+    {
+        $this->myVote = $myVote;
+    }
+
+
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -273,11 +325,22 @@ class Post implements JsonSerializable
         $post['id'] = $this->id;
         $post['title'] = $this->title;
         $post['slug'] = $this->slug;
-        $post['url'] = $this->url;
-        $post['domain'] = $this->domain;
         $post['karma'] = $this->karma;
         $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
+        $post['my_vote'] = $this->myVote;
+
+        if (null !== $this->domain) {
+            $post['domain'] = $this->domain;
+        }
+
+        if (null !== $this->url) {
+            $post['url'] = $this->url;
+        }
+
+        if (null !== $this->content) {
+            $post['content'] = $this->content;
+        }
 
         if (null !== $this->user) {
             $post['author'] = $this->user;

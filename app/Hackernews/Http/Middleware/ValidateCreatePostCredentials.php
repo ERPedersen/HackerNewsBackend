@@ -28,26 +28,38 @@ class ValidateCreatePostCredentials
             if (empty($json['title'])) {
                 array_push($errors, "Please provide a title for your post");
             } else {
-                if (! PostValidator::validateTitle($json['title'])) {
+                if (!PostValidator::validateTitle($json['title'])) {
                     array_push($errors, "Please provide a valid title for your post");
                 }
             }
 
-            if (empty($json['url'])) {
-                array_push($errors, "Please provide a url for your post");
-            } else {
-                if (! PostValidator::validateUrl($json['url'])) {
+            if (!empty($json['url'])) {
+                if (!PostValidator::validateUrl($json['url'])) {
                     array_push($errors, "Please provde a valid url for your post");
+                } else {
+                    $request = $request->withAttribute('post_type', 'link');
+                }
+            } else if (!empty($json['content'])) {
+                if (!PostValidator::validateContent($json['content'])) {
+                    array_push($errors, "Please provde some valid content for your post");
+                } else {
+                    $request = $request->withAttribute('post_type', 'story');
                 }
             }
 
-            if (! empty($errors)) {
+            if (empty($json['url']) && empty($json['content'])) {
+                array_push($errors, "Please provide either a url or some content for your post.");
+            }
+
+            if (!empty($errors)) {
                 throw new ValidationException("Validation error", 4, $errors);
             }
 
             return $next($request, $response);
+
         } catch (ValidationException $ve) {
             return $response->withJson(ResponseHandler::errorWithMessages($ve), 400);
         }
+
     }
 }

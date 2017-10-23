@@ -10,7 +10,10 @@ namespace Hackernews\Access;
 
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\User;
+use Hackernews\Exceptions\PostNotFoundException;
+use Hackernews\Exceptions\ReferenceNotFoundException;
 use Hackernews\Services\DB;
+use Mockery\Exception;
 use PDOException;
 
 /**
@@ -59,8 +62,8 @@ class CommentAccess implements ICommentAccess
             while ($row = $stmt->fetch()) {
                 $user = new User(
                     $row['user_id'],
-                    $row['user_karma'],
-                    $row['user_alias']
+                    $row['user_alias'],
+                    $row['user_karma']
                 );
 
                 $comment = new Comment(
@@ -94,4 +97,90 @@ class CommentAccess implements ICommentAccess
             throw $e;
         }
     }
+
+    public function postComment(int $userRef, int $postRef, string $content, int $commentRef=null)
+    {
+        try {
+            $stmt = DB::conn()->prepare("
+            INSERT INTO comments (user_ref, post_ref, comment_ref, content)
+            VALUES (:user_ref, :post_ref, :comment_ref, :content)
+            ");
+
+            $stmt->execute([
+                'user_ref' => $userRef,
+                'post_ref' => $postRef,
+                'comment_ref' => $commentRef,
+                'content' => $content
+            ]);
+
+            return DB::conn()->lastInsertId();
+
+
+        } catch (PDOException $e) {
+            if ($e->errorInfo[0] == 23000) {
+                throw new ReferenceNotFoundException("Reference was not found to either post or user.", 8);
+            } else {
+                throw new Exception("Unhandled exception thrown.",500);
+            }
+        }
+    }
+
+    /**
+     * @param int $commentId
+     * @return Comment
+     */
+    public function getCommentById(int $commentId)
+    {
+        try {
+            $stmt = DB::conn()->prepare("
+                SELECT c.id   AS comment_id, 
+                c.user_ref    AS comment_user_ref, 
+                c.post_ref    AS comment_post_ref, 
+                c.comment_ref AS comment_comment_ref, 
+                c.content     AS comment_content, 
+                c.karma       AS comment_karma, 
+                c.spam        AS comment_spam, 
+                c.created_at  AS comment_created_at,
+                u.id          AS user_id, 
+                u.karma       AS user_karma, 
+                u.alias       AS user_alias  
+                FROM comments c
+                JOIN users u ON c.user_ref = u.id
+                WHERE c.id = :comment_id
+            ");
+
+            $stmt->execute([
+                'comment_id' => $commentId
+            ]);
+
+            $comment = null;
+
+            while ($row = $stmt->fetch()) {
+                $user = new User(
+                    $row['user_id'],
+                    $row['user_karma'],
+                    $row['user_alias']
+                );
+
+                $comment = new Comment(
+                    $row['comment_id'],
+                    $row['comment_user_ref'],
+                    $row['comment_post_ref'],
+                    $row['comment_comment_ref'],
+                    $row['comment_content'],
+                    $row['comment_karma'],
+                    $row['comment_spam'],
+                    $row['comment_created_at'],
+                    $user
+                );
+
+            }
+
+            return $comment;
+
+        } catch (PDOException $e) {
+            throw new PostNotFoundException("No post found by this ID.", 404);
+        }
+    }
+
 }
