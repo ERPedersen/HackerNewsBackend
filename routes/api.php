@@ -22,7 +22,7 @@ $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
 
-    $app->post("/new", TestController::class . ':postTest');
+    $app->post("/post", TestController::class . ':postTest');
 
     $app->post("/login", AuthController::class . ':authenticate')
         ->add(new ValidateLoginCredentials());

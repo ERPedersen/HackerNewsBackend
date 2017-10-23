@@ -2,6 +2,8 @@
 
 namespace Hackernews\Facade;
 
+use Exception;
+use Hackernews\Access\TestAccess;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
 use Hackernews\Services\TokenService;
@@ -31,7 +33,10 @@ class TestFacade implements ITestFacade
         $this->newBody->email = $json['username'] . "@test.com";
         $this->newBody->password = $json['pwd_hash'];
         $this->newBody->title = $json['post_title'];
+        $this->newBody->hanesst_id = $json['hanesst_id'];
+        $this->newBody->content = "TEST STORY: Generated from Helge's script";
 
+        $request = $request->withAttribute("post_type", "story");
         $request = $request->withParsedBody((array)$this->newBody);
 
         return $request;
@@ -54,7 +59,6 @@ class TestFacade implements ITestFacade
         $token = $tokenService->decode($token);
 
         $this->newBody->user_id = $token->getClaim('id');
-        $this->newBody->url = "https://www.google.dk/";
 
         $request = $request->withAttribute("user_id", $token->getClaim('id'));
         $request = $request->withParsedBody((array)$this->newBody);
@@ -83,5 +87,24 @@ class TestFacade implements ITestFacade
     private function getToken(Request $request, Response $response) {
         $auth = new AuthController();
         return $auth->authenticate($request, $response);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @throws \Exception
+     */
+    public function persistHanesstId(Request $request, Response $response) {
+        $access = new TestAccess();
+
+        $json = $request->getParsedBody();
+
+        $hanesst_id = $json['hanesst_id'];
+
+        try {
+            $access->persistHanesstId($hanesst_id);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }
