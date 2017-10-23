@@ -240,7 +240,7 @@ class CommentAccess implements ICommentAccess
         }catch (PDOException $e) {
             if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
-            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
                 throw new NoCommentsException("The Comment doesn't exists!") ;
             } else {
                 throw $e;
@@ -269,7 +269,7 @@ class CommentAccess implements ICommentAccess
         }catch (PDOException $e) {
             if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
-            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
                 throw new NoCommentsException("The Comment doesn't exists!") ;
             } else {
                 throw $e;
