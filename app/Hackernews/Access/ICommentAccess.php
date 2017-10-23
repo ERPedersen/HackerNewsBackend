@@ -19,4 +19,49 @@ interface ICommentAccess
      * @return mixed
      */
     public function getCommentsByPostId(int $postRef, int $limit, int $page);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return mixed
+     */
+    public function getVote(int $userRef,int $commentRef);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return mixed
+     */
+    public function addUpvote(int $userRef,int $commentRef);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return mixed
+     */
+    public function addDownvote(int $userRef,int $commentRef);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return mixed
+     */
+    public function removeUpVote(int $userRef,int $commentRef);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return mixed
+     */
+    public function removeDownvote(int $userRef,int $commentRef);
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @param int $value
+     * @return mixed
+     */
+    public function changeVote(int $userRef,int $commentRef, int $value);
+
+
 }

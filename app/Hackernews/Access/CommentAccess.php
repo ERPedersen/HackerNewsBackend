@@ -10,8 +10,11 @@ namespace Hackernews\Access;
 
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\User;
+use Hackernews\Exceptions\NoCommentsException;
+use Hackernews\Exceptions\NoUserException;
 use Hackernews\Exceptions\PostNotFoundException;
 use Hackernews\Exceptions\ReferenceNotFoundException;
+use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Services\DB;
 use Mockery\Exception;
 use PDOException;
@@ -127,7 +130,8 @@ class CommentAccess implements ICommentAccess
 
     /**
      * @param int $commentId
-     * @return Comment
+     * @return Comment|null
+     * @throws PostNotFoundException
      */
     public function getCommentById(int $commentId)
     {
@@ -183,4 +187,179 @@ class CommentAccess implements ICommentAccess
         }
     }
 
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return int
+     * @throws WrongValueException
+     */
+    public function getVote(int $userRef, int $commentRef)
+    {
+        $stmt = DB::conn()->prepare("SELECT user_ref, comment_ref, val FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :post_ref");
+        $stmt->execute([
+            "user_ref" => $userRef,
+            "post_ref" => $commentRef
+        ]);
+
+        // There is no previous upvote or downvote from the user so one has to be made.
+        if ($stmt->rowCount() == 0) {
+            return 0;
+        }
+
+        $row = $stmt->fetch();
+        $val = $row['val'];
+
+        // If val is one, there is already an upvote and therefore it needs to be removed.
+        // If val is -1 a downvote exists and needs to be changed to an upvote.
+        if ($val == 1 || $val == -1 ) {
+            return ($val);
+        } else {
+            // Should never happen.
+            throw new WrongValueException("Value must be 1 or -1");
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return string
+     * @throws NoCommentsException
+     * @throws NoUserException
+     */
+    public function addUpvote(int $userRef, int $commentRef)
+    {
+        try {
+            // Inserts a new upvote into the junction table in the database.
+            DB::conn()->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
+                "user_ref" => $userRef,
+                "comment_ref" => $commentRef,
+                "val" => 1
+            ]);
+
+            return "upvote added";
+        }catch (PDOException $e) {
+            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!") ;
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return string
+     * @throws NoCommentsException
+     * @throws NoUserException
+     */
+    public function addDownvote(int $userRef, int $commentRef)
+    {
+        try {
+            // Inserts a new upvote into the junction table in the database.
+            DB::conn()->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
+                "user_ref" => $userRef,
+                "comment_ref" => $commentRef,
+                "val" => -1
+            ]);
+
+            return "downvote added";
+        }catch (PDOException $e) {
+            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!") ;
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return string
+     * @throws NoCommentsException
+     * @throws NoUserException
+     */
+    public function removeUpVote(int $userRef, int $commentRef)
+    {
+        try {
+            // Removes an upvote from the junction table in the database.
+            DB::conn()->prepare("DELETE FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :comment_ref")->execute([
+                "user_ref" => $userRef,
+                "comment_ref" => $commentRef
+            ]);
+
+            return "upvote removed!";
+        }catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return string
+     * @throws NoCommentsException
+     * @throws NoUserException
+     */
+    public function removeDownvote(int $userRef, int $commentRef)
+    {
+        try {
+            // Removes an downvote from the junction table in the database.
+            DB::conn()->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
+                "user_ref" => $userRef,
+                "comment_ref" => $commentRef
+            ]);
+
+            return "downvote removed!";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @param int $value
+     * @return string
+     * @throws NoCommentsException
+     * @throws NoUserException
+     */
+    public function changeVote(int $userRef, int $commentRef, int $value)
+    {
+        try {
+            // Updates a downvote into an upvote.
+            DB::conn()->prepare("UPDATE votes_users_comments SET val = :val WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
+                "val" => $value,
+                "user_ref" => $userRef,
+                "post_ref" => $commentRef
+            ]);
+
+            return ($value == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoCommentsException("The Post doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
 }

@@ -10,6 +10,9 @@ namespace Hackernews\Http\Controllers;
 
 
 use Exception;
+use Hackernews\Exceptions\NoCommentsException;
+use Hackernews\Exceptions\NoUserException;
+use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Facade\CommentFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Slim\Http\Request;
@@ -75,5 +78,58 @@ class CommentController
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
 
+    }
+
+    public function upvoteComment(Request $request, Response $response)
+    {
+        $commentFacade = new CommentFacade();
+
+        try {
+            $json = $request->getParsedBody();
+            $userRef = $request->getAttribute('user_id');
+            $commentRef = $json['comment_ref'];
+
+            $result = $commentFacade->upvote($userRef, $commentRef);
+
+            return $response->withJson(ResponseHandler::success($result), 200);
+
+        } catch (NoCommentsException $e) {
+            return $response->withStatus(204);
+        } catch (NoUserException $e) {
+            return $response->withStatus(204);
+        } catch (WrongValueException $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
+    public function downvoteComment(Request $request, Response $response)
+    {
+        $commentFacade = new CommentFacade();
+
+        try {
+            $json = $request->getParsedBody();
+            $userRef = $request->getAttribute('user_id');
+            $commentRef = $json['comment_ref'];
+
+            $result = $commentFacade->downvote($userRef, $commentRef);
+
+            return $response->withJson(ResponseHandler::success($result), 200);
+
+        } catch (NoCommentsException $e) {
+            return $response->withStatus(204);
+        } catch (NoUserException $e) {
+            return $response->withStatus(204);
+        } catch (WrongValueException $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
     }
 }
