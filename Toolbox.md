@@ -598,3 +598,13 @@ Attempts to downvote a post based on a post id, and amount of karma. If the down
 ## Work distribution
 
 All the group met up and made this together so the work distribution is around 20% for everybody.
+
+**Dennis:** 20%
+
+**Rune:** 20%
+
+**Nicolai:** 20%
+
+**Emil:** 20%
+
+**Ebbe:** 20%
