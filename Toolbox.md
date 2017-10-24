@@ -49,7 +49,7 @@ As a user i want to be able to upvote a post so that the system may tell other u
 ##### Downvote Post
 As a user i want to be able to downvote a post so that the system may tell other user that I dislike it.
 
-### Description of actors
+## Description of actors
 
 ##### Non user:
 
