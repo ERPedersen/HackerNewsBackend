@@ -49,7 +49,7 @@ As a user i want to be able to upvote a post so that the system may tell other u
 ##### Downvote Post
 As a user i want to be able to downvote a post so that the system may tell other user that I dislike it.
 
-### Description of actors
+## Description of actors
 
 ##### Non user:
 
@@ -598,7 +598,6 @@ Attempts to downvote a post based on a post id, and amount of karma. If the down
 ## Work distribution
 
 All the group met up and made this together so the work distribution is around 20% for everybody.
-
 **Dennis:** 20%
 
 **Rune:** 20%
@@ -608,3 +607,4 @@ All the group met up and made this together so the work distribution is around 2
 **Emil:** 20%
 
 **Ebbe:** 20%
+
