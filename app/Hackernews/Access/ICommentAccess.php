@@ -16,9 +16,18 @@ interface ICommentAccess
 {
     /**
      * @param int $postRef
+     * @param int $limit
+     * @param int $page
      * @return mixed
      */
     public function getCommentsByPostId(int $postRef, int $limit, int $page);
+
+    /**
+     * @param int $commentId
+     * @param int $userRef
+     * @return mixed
+     */
+    public function getCommentById(int $commentId, int $userRef);
 
     /**
      * @param int $userRef

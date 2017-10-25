@@ -54,7 +54,7 @@ class CommentFacade implements ICommentFacade
 
         return [
             'comment_id' => $commentId,
-            'comment' => $this->access->getCommentById($commentId)
+            'comment' => $this->access->getCommentById($commentId, $userRef)
         ];
     }
 
@@ -74,7 +74,7 @@ class CommentFacade implements ICommentFacade
             } else {
                 $this->access->changeVote($userRef, $commentRef, 1);
             }
-            return $this->access->getCommentById($commentRef);
+            return $this->access->getCommentById($commentRef, $userRef);
         } catch (Exception $e) {
             throw  $e;
         }
@@ -96,7 +96,7 @@ class CommentFacade implements ICommentFacade
             } else {
                 $this->access->changeVote($userRef, $commentRef, -1);
             }
-            return $this->access->getCommentById($commentRef);
+            return $this->access->getCommentById($commentRef, $userRef);
         } catch (Exception $e) {
             throw $e;
         }

@@ -8,6 +8,7 @@
 
 namespace Hackernews\Access;
 
+use Exception;
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\User;
 use Hackernews\Exceptions\NoCommentsException;
@@ -16,7 +17,6 @@ use Hackernews\Exceptions\PostNotFoundException;
 use Hackernews\Exceptions\ReferenceNotFoundException;
 use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Services\DB;
-use Mockery\Exception;
 use PDOException;
 
 /**
@@ -101,7 +101,7 @@ class CommentAccess implements ICommentAccess
         }
     }
 
-    public function postComment(int $userRef, int $postRef, string $content, int $commentRef=null)
+    public function postComment(int $userRef, int $postRef, string $content, int $commentRef = null)
     {
         try {
             $stmt = DB::conn()->prepare("
@@ -123,17 +123,18 @@ class CommentAccess implements ICommentAccess
             if ($e->errorInfo[0] == 23000) {
                 throw new ReferenceNotFoundException("Reference was not found to either post or user.", 8);
             } else {
-                throw new Exception("Unhandled exception thrown.",500);
+                throw new Exception("Unhandled exception thrown.", 500);
             }
         }
     }
 
     /**
      * @param int $commentId
+     * @param int $userRef
      * @return Comment|null
      * @throws PostNotFoundException
      */
-    public function getCommentById(int $commentId)
+    public function getCommentById(int $commentId, int $userRef)
     {
         try {
             $stmt = DB::conn()->prepare("
@@ -147,14 +148,19 @@ class CommentAccess implements ICommentAccess
                 c.created_at  AS comment_created_at,
                 u.id          AS user_id, 
                 u.karma       AS user_karma, 
-                u.alias       AS user_alias  
+                u.alias       AS user_alias,
+                v.val         AS my_vote  
                 FROM comments c
-                JOIN users u ON c.user_ref = u.id
+                JOIN users u 
+                ON c.user_ref = u.id
+                LEFT JOIN votes_users_comments v
+                ON v.comment_ref = c.id AND v.user_ref = :userRef
                 WHERE c.id = :comment_id
             ");
 
             $stmt->execute([
-                'comment_id' => $commentId
+                'comment_id' => $commentId,
+                'userRef' => $userRef
             ]);
 
             $comment = null;
@@ -175,7 +181,8 @@ class CommentAccess implements ICommentAccess
                     $row['comment_karma'],
                     $row['comment_spam'],
                     $row['comment_created_at'],
-                    $user
+                    $user,
+                    isset($row['my_vote']) ? $row['my_vote'] : 0
                 );
 
             }
@@ -183,7 +190,7 @@ class CommentAccess implements ICommentAccess
             return $comment;
 
         } catch (PDOException $e) {
-            throw new PostNotFoundException("No post found by this ID.", 404);
+            throw new PostNotFoundException("No comment found by this ID.", 404);
         }
     }
 
@@ -211,7 +218,7 @@ class CommentAccess implements ICommentAccess
 
         // If val is one, there is already an upvote and therefore it needs to be removed.
         // If val is -1 a downvote exists and needs to be changed to an upvote.
-        if ($val == 1 || $val == -1 ) {
+        if ($val == 1 || $val == -1) {
             return ($val);
         } else {
             // Should never happen.
@@ -237,11 +244,11 @@ class CommentAccess implements ICommentAccess
             ]);
 
             return "upvote added";
-        }catch (PDOException $e) {
-            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
-                throw new NoCommentsException("The Comment doesn't exists!") ;
+                throw new NoCommentsException("The Comment doesn't exists!");
             } else {
                 throw $e;
             }
@@ -266,11 +273,11 @@ class CommentAccess implements ICommentAccess
             ]);
 
             return "downvote added";
-        }catch (PDOException $e) {
-            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
-                throw new NoCommentsException("The Comment doesn't exists!") ;
+                throw new NoCommentsException("The Comment doesn't exists!");
             } else {
                 throw $e;
             }
@@ -294,7 +301,7 @@ class CommentAccess implements ICommentAccess
             ]);
 
             return "upvote removed!";
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
