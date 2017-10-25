@@ -29,6 +29,7 @@ class CommentController
     {
         try {
             $id = $request->getAttribute('id');
+            $userRef = $request->getAttribute('user_id');
 
             $limit = $request->getParam('limit');
             $page = $request->getParam('page');
@@ -37,9 +38,9 @@ class CommentController
 
             //If limit and page is in the request object, the query is called with them as parameters. Otherwise limit and page is set to 5 and 1.
             if ($limit && $page) {
-                $comments = $commentFacade->getCommentByPostId($id, $limit, $page);
+                $comments = $commentFacade->getCommentByPostId($id, $userRef, $limit, $page);
             } else {
-                $comments = $commentFacade->getCommentByPostId($id);
+                $comments = $commentFacade->getCommentByPostId($id, $userRef);
             }
 
             return $response->withJson(ResponseHandler::success($comments), 200);
@@ -80,6 +81,11 @@ class CommentController
 
     }
 
+    /**
+     * @param \Slim\Http\Request $request
+     * @param \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
     public function upvoteComment(Request $request, Response $response)
     {
         $commentFacade = new CommentFacade();

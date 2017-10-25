@@ -65,6 +65,7 @@ $app->group("", function () use ($app) {
 	        ->add(new EnforceAuthentication());
 
 		$app->get("/{id}", CommentController::class . ':getComments')
+            ->add(new CheckIsLoggedIn())
 		    ->add(new ValidatePaginationCredentials());
 		$app->post('/upvote', CommentController::class . ':upvoteComment')
             ->add(new ValidateVoteCommentCredentials())

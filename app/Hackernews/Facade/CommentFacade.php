@@ -35,11 +35,12 @@ class CommentFacade implements ICommentFacade
      * @param int $postRef
      * @param int $limit
      * @param int $page
+     * @param int $userRef
      * @return array
      */
-    public function getCommentByPostId(int $postRef, int $limit = 5, int $page = 1)
+    public function getCommentByPostId(int $postRef, int $userRef, int $limit = 5, int $page = 1)
     {
-        return $this->access->getCommentsByPostId($postRef, $limit, $page);
+        return $this->access->getCommentsByPostId($postRef, $limit, $page, $userRef);
     }
 
     /**
@@ -58,6 +59,12 @@ class CommentFacade implements ICommentFacade
         ];
     }
 
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return \Hackernews\Entity\Comment|null
+     * @throws Exception
+     */
     public function upvote(int $userRef, int $commentRef)
     {
         try {
@@ -80,6 +87,12 @@ class CommentFacade implements ICommentFacade
         }
     }
 
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return \Hackernews\Entity\Comment|null
+     * @throws Exception
+     */
     public function downvote(int $userRef, int $commentRef)
     {
         try {

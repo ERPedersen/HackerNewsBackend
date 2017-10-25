@@ -29,9 +29,10 @@ class CommentAccess implements ICommentAccess
      * @param int $postRef
      * @param int $limit
      * @param int $page
+     * @param int $userRef
      * @return array
      */
-    public function getCommentsByPostId(int $postRef, int $limit, int $page)
+    public function getCommentsByPostId(int $postRef, int $limit, int $page, int $userRef)
     {
         // Set pagination variables
         $limit = $limit + 1;
@@ -49,16 +50,25 @@ class CommentAccess implements ICommentAccess
             c.created_at  AS comment_created_at, 
             u.id          AS user_id, 
             u.karma       AS user_karma, 
-            u.alias       AS user_alias  
+            u.alias       AS user_alias,  
+            v.val         AS my_vote  
             FROM comments c
-            JOIN users u ON c.user_ref = u.id
-            WHERE post_ref = :post_ref
+            JOIN users u 
+            ON c.user_ref = u.id
+            LEFT JOIN votes_users_comments v
+            ON v.user_ref = :userRef AND v.comment_ref = c.id
+            WHERE post_ref = :post_ref 
             ORDER BY c.created_at DESC
             LIMIT :limit_amount
             OFFSET :offset_amount
         ");
 
-            $stmt->execute(['post_ref' => $postRef, 'limit_amount' => $limit, 'offset_amount' => $offset]);
+            $stmt->execute([
+                'post_ref' => $postRef,
+                'limit_amount' => $limit,
+                'offset_amount' => $offset,
+                'userRef' => $userRef
+            ]);
 
             $results = [];
 
@@ -78,7 +88,8 @@ class CommentAccess implements ICommentAccess
                     $row['comment_karma'],
                     $row['comment_spam'],
                     $row['comment_created_at'],
-                    $user
+                    $user,
+                    isset($row['my_vote']) ? $row['my_vote'] : 0
                 );
 
                 array_push($results, $comment);
