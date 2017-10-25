@@ -98,7 +98,7 @@ class PostController
             $commentFacade = new CommentFacade();
 
             $post = $postFacade->getPostBySlug($slug, $userRef);
-            $comments = $commentFacade->getCommentByPostId($post->getId());
+            $comments = $commentFacade->getCommentByPostId($post->getId(), $userRef);
 
             $data = [
                 'post' => $post,
