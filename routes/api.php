@@ -11,7 +11,8 @@ use Hackernews\Http\Middleware\CheckIsLoggedIn;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
-use Hackernews\Http\Middleware\ValidateCredentials;
+use Hackernews\Http\Middleware\ValidateVoteCommentCredentials;
+use Hackernews\Http\Middleware\ValidateVotePostCredentials;
 use Hackernews\Http\Middleware\ValidateKarmaPoints;
 use Hackernews\Http\Middleware\ValidateLoginCredentials;
 use Hackernews\Http\Middleware\ValidatePaginationCredentials;
@@ -49,12 +50,12 @@ $app->group("", function () use ($app) {
 	        ->add(new CheckIsLoggedIn());
 
 	    $app->post("/upvote", PostController::class . ':upvotePost')
-	        ->add(new ValidateCredentials())
+	        ->add(new ValidateVotePostCredentials())
 	        ->add(new EnforceAuthentication());
 
 	    $app->post("/downvote", PostController::class . ':downvotePost')
 	        ->add(new ValidateKarmaPoints())
-	        ->add(new ValidateCredentials())
+	        ->add(new ValidateVotePostCredentials())
 	        ->add(new EnforceAuthentication());
     });
 
@@ -64,7 +65,15 @@ $app->group("", function () use ($app) {
 	        ->add(new EnforceAuthentication());
 
 		$app->get("/{id}", CommentController::class . ':getComments')
+            ->add(new CheckIsLoggedIn())
 		    ->add(new ValidatePaginationCredentials());
+		$app->post('/upvote', CommentController::class . ':upvoteComment')
+            ->add(new ValidateVoteCommentCredentials())
+            ->add(new EnforceAuthentication());
+        $app->post('/downvote', CommentController::class . ':downvoteComment')
+            ->add(new ValidateKarmaPoints())
+            ->add(new ValidateVoteCommentCredentials())
+            ->add(new EnforceAuthentication());
     });
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {

@@ -68,11 +68,8 @@ class PostAccess implements IPostAccess
      * @param String $title
      * @param String $slug
      * @param String $content
-     * @param String $domain
      * @param int $userRef
      * @return string
-     * @throws DuplicatePostException
-     * @internal param String $url
      */
     public function createStory(String $title, String $slug, String $content, int $userRef)
     {

@@ -2,13 +2,12 @@
 
 namespace Hackernews\Http\Middleware;
 
-
 use Hackernews\Exceptions\ValidationException;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Slim\Http\Response;
 use Slim\Http\Request;
 
-class ValidateCredentials
+class ValidateVotePostCredentials
 {
     /**
      * Validates the required parameters when upvoting a post.

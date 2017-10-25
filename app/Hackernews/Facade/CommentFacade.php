@@ -9,6 +9,7 @@
 namespace Hackernews\Facade;
 
 use Hackernews\Access\CommentAccess;
+use Exception;
 
 /**
  * Class CommentFacade
@@ -34,11 +35,12 @@ class CommentFacade implements ICommentFacade
      * @param int $postRef
      * @param int $limit
      * @param int $page
+     * @param int $userRef
      * @return array
      */
-    public function getCommentByPostId(int $postRef, int $limit = 5, int $page = 1)
+    public function getCommentByPostId(int $postRef, int $userRef, int $limit = 5, int $page = 1)
     {
-        return $this->access->getCommentsByPostId($postRef, $limit, $page);
+        return $this->access->getCommentsByPostId($postRef, $limit, $page, $userRef);
     }
 
     /**
@@ -53,8 +55,64 @@ class CommentFacade implements ICommentFacade
 
         return [
             'comment_id' => $commentId,
-            'comment' => $this->access->getCommentById($commentId)
+            'comment' => $this->access->getCommentById($commentId, $userRef)
         ];
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return \Hackernews\Entity\Comment|null
+     * @throws Exception
+     */
+    public function upvote(int $userRef, int $commentRef)
+    {
+        try {
+            // Choice will either be 1, 0 or -1.
+            // If 0 a new upvote has to be created.
+            // If 1 there is already an upvote and it has to be removed.
+            // If -1 there is a downvote, and it has to be changed to an upvote.
+            $choice = $this->access->getVote($userRef, $commentRef);
+
+            if ($choice == 0) {
+                $this->access->addUpvote($userRef, $commentRef);
+            } else if ($choice == 1) {
+                $this->access->removeUpvote($userRef, $commentRef);
+            } else {
+                $this->access->changeVote($userRef, $commentRef, 1);
+            }
+            return $this->access->getCommentById($commentRef, $userRef);
+        } catch (Exception $e) {
+            throw  $e;
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $commentRef
+     * @return \Hackernews\Entity\Comment|null
+     * @throws Exception
+     */
+    public function downvote(int $userRef, int $commentRef)
+    {
+        try {
+            // Choice will either be 1, 0 or -1.
+            // If 0 a new downvote has to be created.
+            // If 1 there is an upvote and it has to be changed to a downvote.
+            // If -1 there is already a downvote and it has to be removed.
+            $choice = $this->access->getVote($userRef, $commentRef);
+
+            if ($choice == 0) {
+                $this->access->addDownvote($userRef, $commentRef);
+            } else if ($choice == -1) {
+                $this->access->removeDownvote($userRef, $commentRef);
+            } else {
+                $this->access->changeVote($userRef, $commentRef, -1);
+            }
+            return $this->access->getCommentById($commentRef, $userRef);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
 }
