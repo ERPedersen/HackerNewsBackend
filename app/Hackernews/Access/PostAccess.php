@@ -2,10 +2,13 @@
 
 namespace Hackernews\Access;
 
+use Exception;
 use Hackernews\Entity\User;
 use Hackernews\Entity\Post;
 use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoPostsException;
+use Hackernews\Exceptions\NoUserException;
+use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Services\DB;
 use PDOException;
 
@@ -65,11 +68,8 @@ class PostAccess implements IPostAccess
      * @param String $title
      * @param String $slug
      * @param String $content
-     * @param String $domain
      * @param int $userRef
      * @return string
-     * @throws DuplicatePostException
-     * @internal param String $url
      */
     public function createStory(String $title, String $slug, String $content, int $userRef)
     {
@@ -99,10 +99,11 @@ class PostAccess implements IPostAccess
      * by slug.
      *
      * @param int $id
+     * @param int $userRef
      * @return Post|mixed
      * @throws \Exception|\PDOException
      */
-    public function getPostById(int $id)
+    public function getPostById(int $id, int $userRef)
     {
 
         $stmt = DB::conn()->prepare("SELECT 
@@ -117,13 +118,20 @@ class PostAccess implements IPostAccess
                                      DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
-                                     u.karma AS author_karma
+                                     u.karma AS author_karma,
+                                     v.val AS my_vote
                                      FROM posts AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
-                                     WHERE  p.id = :id");
+                                     LEFT JOIN votes_users_posts v
+                                     ON v.post_ref = p.id AND v.user_ref = :userRef
+                                     WHERE p.id = :id
+                                     ");
 
-        $stmt->execute(['id' => $id]);
+        $stmt->execute([
+            'id' => $id,
+            'userRef' => $userRef
+        ]);
 
         if ($stmt->rowCount() == 0) {
             throw new NoPostsException("No results found", 0);
@@ -148,7 +156,8 @@ class PostAccess implements IPostAccess
             $row['post_created_at'],
             $row['author_id'],
             $row['post_spam'],
-            $author
+            $author,
+            isset($row['my_vote']) ? $row['my_vote'] : 0
         );
 
         return $post;
@@ -156,10 +165,11 @@ class PostAccess implements IPostAccess
 
     /**
      * @param String $slug
+     * @param int $userRef
      * @return Post
      * @throws NoPostsException
      */
-    public function getPostBySlug(String $slug)
+    public function getPostBySlug(String $slug, int $userRef)
     {
 
         $stmt = DB::conn()->prepare("SELECT 
@@ -174,13 +184,19 @@ class PostAccess implements IPostAccess
                                      DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
-                                     u.karma AS author_karma
+                                     u.karma AS author_karma,
+                                     v.val AS my_vote
                                      FROM posts AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
+                                     LEFT JOIN votes_users_posts v
+                                     ON v.post_ref = p.id AND v.user_ref = :userRef
                                      WHERE  p.slug = :slug");
 
-        $stmt->execute(['slug' => $slug]);
+        $stmt->execute([
+            'slug' => $slug,
+            'userRef' => $userRef
+        ]);
 
         if ($stmt->rowCount() == 0) {
             throw new NoPostsException("No results found", 0);
@@ -205,7 +221,8 @@ class PostAccess implements IPostAccess
             $row['post_created_at'],
             $row['author_id'],
             $row['post_spam'],
-            $author
+            $author,
+            isset($row['my_vote']) ? $row['my_vote'] : 0
         );
 
         return $post;
@@ -216,9 +233,10 @@ class PostAccess implements IPostAccess
      *
      * @param int $limit
      * @param int $page
+     * @param int $userRef
      * @return array
      */
-    public function getPosts($limit, $page)
+    public function getPosts($limit, $page, int $userRef)
     {
         $limit = $limit + 1;
         $offset = ($limit - 1) * ($page - 1);
@@ -235,17 +253,21 @@ class PostAccess implements IPostAccess
                                      DATE_FORMAT(CONVERT_TZ( p.created_at, @@session.time_zone, '+00:00' ), '%Y-%m-%dT%TZ') AS post_created_at,
                                      u.id AS author_id, 
                                      u.alias AS author_alias, 
-                                     u.karma AS author_karma
+                                     u.karma AS author_karma,
+                                     v.val AS my_vote
                                      FROM posts AS p
                                      JOIN users u
                                      ON p.user_ref = u.id
+                                     LEFT JOIN votes_users_posts v
+                                     ON v.post_ref = p.id AND v.user_ref = :userRef
                                      ORDER BY p.created_at DESC
                                      LIMIT :limit_amount
                                      OFFSET :offset_amount");
 
         $stmt->execute([
             'limit_amount' => $limit,
-            'offset_amount' => $offset
+            'offset_amount' => $offset,
+            'userRef' => $userRef
         ]);
 
         $results = [];
@@ -269,7 +291,8 @@ class PostAccess implements IPostAccess
                 $row['post_created_at'],
                 $row['author_id'],
                 $row['post_spam'],
-                $author
+                $author,
+                isset($row['my_vote']) ? $row['my_vote'] : 0
             );
 
             array_push($results, $post);
@@ -323,5 +346,181 @@ class PostAccess implements IPostAccess
         }
 
         return $slug;
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return int
+     * @throws Exception
+     */
+    public function getVote(int $userRef, int $postRef)
+    {
+        $stmt = DB::conn()->prepare("SELECT user_ref, post_ref, val FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :post_ref");
+        $stmt->execute([
+            "user_ref" => $userRef,
+            "post_ref" => $postRef
+        ]);
+
+        // There is no previous upvote or downvote from the user so one has to be made.
+        if ($stmt->rowCount() == 0) {
+            return 0;
+        }
+
+        $row = $stmt->fetch();
+        $val = $row['val'];
+
+        // If val is one, there is already an upvote and therefore it needs to be removed.
+        // If val is -1 a downvote exists and needs to be changed to an upvote.
+        if ($val == 1 || $val == -1 ) {
+            return ($val);
+        } else {
+            // Should never happen.
+            throw new WrongValueException("Value must be 1 or -1");
+        }
+
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function addUpvote(int $userRef, int $postRef)
+    {
+        try {
+            // Inserts a new upvote into the junction table in the database.
+            DB::conn()->prepare("INSERT INTO votes_users_posts (user_ref, post_ref, val) VALUES (:user_ref, :post_ref, :val)")->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $postRef,
+                "val" => 1
+            ]);
+
+            return "upvote added";
+        }catch (PDOException $e) {
+            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!") ;
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function removeUpvote(int $userRef, int $postRef)
+    {
+        try {
+            // Removes an upvote from the junction table in the database.
+            DB::conn()->prepare("DELETE FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $postRef
+            ]);
+
+            return "upvote removed!";
+        }catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function addDownvote(int $userRef, int $postRef) {
+        try {
+            // Inserts a new upvote into the junction table in the database.
+            DB::conn()->prepare("INSERT INTO votes_users_posts (user_ref, post_ref, val) VALUES (:user_ref, :post_ref, :val)")->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $postRef,
+                "val" => -1
+            ]);
+
+            return "downvote added";
+        }catch (PDOException $e) {
+            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!") ;
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function removeDownvote(int $userRef, int $postRef)
+    {
+        try {
+            // Removes an downvote from the junction table in the database.
+            DB::conn()->prepare("DELETE FROM votes_users_posts WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $postRef
+            ]);
+
+            return "downvote removed!";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param int $val
+     * @return string
+     * @throws NoPostsException
+     * @throws NoUserException
+     */
+    public function changeVote(int $userRef, int $postRef, int $val)
+    {
+        try {
+            // Updates a downvote into an upvote.
+            DB::conn()->prepare("UPDATE votes_users_posts SET val = :val WHERE user_ref = :user_ref AND post_ref = :post_ref")->execute([
+                "val" => $val,
+                "user_ref" => $userRef,
+                "post_ref" => $postRef
+            ]);
+
+            return ($val == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
+                throw new NoPostsException("The Post doesn't exists!");
+            } else {
+                throw $e;
+            }
+        }
     }
 }

@@ -21,13 +21,57 @@ interface IPostAccess
 
     /**
      * @param int $id
+     * @param int $userRef
      * @return mixed
      */
-    public function getPostById(int $id);
+    public function getPostById(int $id, int $userRef);
 
     /**
      * @param String $slug
      * @return String
      */
     public function getUniqueSlug(String $slug);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function getVote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function addUpvote(int $userRef,int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function removeUpvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function addDownvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @return mixed
+     */
+    public function removeDownvote(int $userRef, int $postRef);
+
+    /**
+     * @param int $userRef
+     * @param int $postRef
+     * @param int $val
+     * @return mixed
+     */
+    public function changeVote(int $userRef, int $postRef, int $val);
 }

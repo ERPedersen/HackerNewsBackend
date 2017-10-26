@@ -15,9 +15,28 @@ class UrlService
      */
     public static function getSlug($title)
     {
-        $title = preg_replace('/^[a-zA-Z\d]+$/', '', $title);
-        $title = strtolower($title);
-        $title = str_replace(" ", "-", $title);
+	    // replace non letter or digits by -
+	    $title = preg_replace('~[^\pL\d]+~u', '-', $title);
+
+	    // transliterate
+	    $title = iconv('utf-8', 'us-ascii//TRANSLIT', $title);
+
+	    // remove unwanted characters
+	    $title = preg_replace('~[^-\w]+~', '', $title);
+
+	    // trim
+	    $title = trim($title, '-');
+
+	    // remove duplicate -
+	    $title = preg_replace('~-+~', '-', $title);
+
+	    // lowercase
+	    $title = strtolower($title);
+
+	    if (empty($title)) {
+		    return 'n-a';
+	    }
+
         return $title;
     }
 

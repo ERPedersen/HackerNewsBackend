@@ -67,6 +67,11 @@ class Post implements JsonSerializable
     private $user;
 
     /**
+     * @var int
+     */
+    private $myVote;
+
+    /**
      * Post constructor.
      *
      * @param int $id
@@ -80,6 +85,8 @@ class Post implements JsonSerializable
      * @param String $userRef
      * @param bool $spam
      * @param User $user
+     * $param int myVote
+     * @param int|null $myVote
      */
     public function __construct(
         int $id,
@@ -92,7 +99,8 @@ class Post implements JsonSerializable
         String $createdAt,
         String $userRef = null,
         bool $spam = false,
-        User $user = null
+        User $user = null,
+        int $myVote = 0
     )
     {
         $this->id = $id;
@@ -106,6 +114,7 @@ class Post implements JsonSerializable
         $this->userRef = $userRef;
         $this->spam = $spam;
         $this->user = $user;
+        $this->myVote = $myVote;
     }
 
     /**
@@ -285,6 +294,24 @@ class Post implements JsonSerializable
     }
 
     /**
+     * @return int
+     */
+    public function getMyVote(): int
+    {
+        return $this->myVote;
+    }
+
+    /**
+     * @param int $myVote
+     */
+    public function setMyVote(int $myVote)
+    {
+        $this->myVote = $myVote;
+    }
+
+
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -301,6 +328,7 @@ class Post implements JsonSerializable
         $post['karma'] = $this->karma;
         $post['created_at'] = $this->createdAt;
         $post['spam'] = $this->spam;
+        $post['my_vote'] = $this->myVote;
 
         if (null !== $this->domain) {
             $post['domain'] = $this->domain;

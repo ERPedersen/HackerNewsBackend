@@ -57,18 +57,24 @@ class Comment implements JsonSerializable
     private $user;
 
     /**
-     * Comment constructor.
-     * @param $id
-     * @param $user_ref
-     * @param $post_ref
-     * @param $comment_ref
-     * @param $content
-     * @param $karma
-     * @param $spam
-     * @param $created_at
-     * @param User|null $user
+     * @var int
      */
-    public function __construct(int $id, int $user_ref, int $post_ref, int $comment_ref = null, String $content, int $karma, bool $spam, String $created_at, User $user = null)
+    private $myVote;
+
+    /**
+     * Comment constructor.
+     * @param int $id
+     * @param int $user_ref
+     * @param int $post_ref
+     * @param int|null $comment_ref
+     * @param String $content
+     * @param int $karma
+     * @param bool $spam
+     * @param String $created_at
+     * @param User|null $user
+     * @param int $myVote
+     */
+    public function __construct(int $id, int $user_ref, int $post_ref, int $comment_ref = null, String $content, int $karma, bool $spam, String $created_at, User $user = null, int $myVote = 0)
     {
         $this->id = $id;
         $this->user_ref = $user_ref;
@@ -79,6 +85,7 @@ class Comment implements JsonSerializable
         $this->spam = $spam;
         $this->created_at = $created_at;
         $this->user = $user;
+        $this->myVote = $myVote;
     }
 
     /**
@@ -226,6 +233,20 @@ class Comment implements JsonSerializable
     }
 
     /**
+     * @return int
+     */
+    public function getMyVote() {
+        return $this->myVote;
+    }
+
+    /**
+     * @param int $myVote
+     */
+    public function setMyVote(int $myVote) {
+        $this->myVote = $myVote;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize()
@@ -243,6 +264,8 @@ class Comment implements JsonSerializable
         if (null !== $this->user) {
             $comment['author'] = $this->user;
         }
+
+        $comment['my_vote'] = $this->myVote;
 
         return $comment;
     }
