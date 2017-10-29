@@ -21,6 +21,6 @@ class IndexController
      */
     public static function index(Request $request, Response $response)
     {
-        return $response->withJson(ResponseHandler::success(getenv('DB_SCHEMA')));
+        return $response->withJson(ResponseHandler::success('OK'));
     }
 }

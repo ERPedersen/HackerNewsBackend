@@ -34,7 +34,7 @@ class TokenService
      */
     public function verify(Token $token): bool
     {
-        return ($token->verify($this->getSigner(), getenv("JWT_SECRET")));
+        return ($token->verify($this->getSigner(), $_ENV["JWT_SECRET"]));
     }
 
     /**
@@ -49,7 +49,7 @@ class TokenService
             $builder->set($key, $value);
         }
 
-        return (String) $builder->sign($this->getSigner(), getenv("JWT_SECRET"))->getToken();
+        return (String) $builder->sign($this->getSigner(), $_ENV["JWT_SECRET"])->getToken();
     }
 
     /**

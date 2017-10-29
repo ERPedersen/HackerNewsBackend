@@ -21,12 +21,12 @@ class DB
 
     public static function conn()
     {
-        if (! isset(self::$pdo)) {
+        if (!isset(self::$pdo)) {
 
-            $dbHost = getenv("DB_HOST");
-            $dbSchema = getenv("DB_SCHEMA");
-            $dbUser = getenv("DB_USER");
-            $dbPass = getenv("DB_PASS");
+            $dbHost = $_ENV["DB_HOST"];
+            $dbSchema = $_ENV["DB_SCHEMA"];
+            $dbUser = $_ENV["DB_USER"];
+            $dbPass = $_ENV["DB_PASS"];
             $dbCharset = 'utf8';
 
             $dbString = "mysql:host=$dbHost;dbname=$dbSchema;charset=$dbCharset";
