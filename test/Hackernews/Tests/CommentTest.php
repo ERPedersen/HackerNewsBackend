@@ -2,19 +2,20 @@
 
 namespace Hackernews\Tests;
 
-use Dotenv\Dotenv;
 use Exception;
 use Hackernews\Entity\Comment;
-use Hackernews\Entity\Post;
 use Hackernews\Entity\User;
-use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoUserException;
 use Hackernews\Exceptions\ReferenceNotFoundException;
 use Hackernews\Facade\CommentFacade;
+use Hackernews\Traits\Environment;
 use Mockery;
 
 class CommentTest extends \PHPUnit_Framework_TestCase
 {
+
+    use Environment;
+
     protected $access;
     protected $facade;
     protected $newComment;
@@ -24,11 +25,9 @@ class CommentTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $dotenv = new Dotenv(__DIR__ . '/../../..');
-        $dotenv->load();
         $this->access = Mockery::mock('Hackernews\Access\ICommentAccess');
         $this->facade = new CommentFacade($this->access);
-        $this->newComment = new Comment(1,69,420,666,'HANS JØRGEN ER FOR VILD', 50000,false, '1920-10-10',new User(1, 'CoolUser', 4), 0);
+        $this->newComment = new Comment(1, 69, 420, 666, 'HANS JØRGEN ER FOR VILD', 50000, false, '1920-10-10', new User(1, 'CoolUser', 4), 0);
     }
 
     /**
@@ -57,7 +56,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->postComment(1,69,'HANS JØRGEN ER FOR VILD',666);
+        $result = $this->facade->postComment(1, 69, 'HANS JØRGEN ER FOR VILD', 666);
 
         self::assertEquals($expectation, $result);
 
@@ -76,7 +75,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new ReferenceNotFoundException("Reference was not found to either post or user.", 8));
 
 
-        $this->facade->postComment(1,69,'HANS JØRGEN ER FOR VILD',666);
+        $this->facade->postComment(1, 69, 'HANS JØRGEN ER FOR VILD', 666);
     }
 
     /**
@@ -85,13 +84,13 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     public function testGetCommentByPostId()
     {
 
-        $expectation = [$this->newComment,$this->newComment,$this->newComment];
+        $expectation = [$this->newComment, $this->newComment, $this->newComment];
 
         $this->access->shouldReceive('getCommentsByPostId')
             ->times(1)
             ->andReturn($expectation);
 
-        $result = $this->facade->getCommentByPostId(69,1);
+        $result = $this->facade->getCommentByPostId(69, 1);
 
         self::assertEquals($expectation, $result);
 
@@ -113,7 +112,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->upvote(69,420);
+        $result = $this->facade->upvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -134,7 +133,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->upvote(69,420);
+        $result = $this->facade->upvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -155,7 +154,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->upvote(69,420);
+        $result = $this->facade->upvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -176,7 +175,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->upvote(69,420);
+        $this->facade->upvote(69, 420);
     }
 
     /**
@@ -195,7 +194,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->upvote(69,420);
+        $this->facade->upvote(69, 420);
     }
 
     /**
@@ -214,7 +213,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->upvote(69,420);
+        $this->facade->upvote(69, 420);
     }
 
     /**
@@ -233,7 +232,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->downvote(69,420);
+        $result = $this->facade->downvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -254,7 +253,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->downvote(69,420);
+        $result = $this->facade->downvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -275,7 +274,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->times(1)
             ->andReturn($this->newComment);
 
-        $result = $this->facade->downvote(69,420);
+        $result = $this->facade->downvote(69, 420);
 
         self::assertEquals($this->newComment, $result);
     }
@@ -296,7 +295,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->downvote(69,420);
+        $this->facade->downvote(69, 420);
     }
 
     /**
@@ -315,7 +314,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->downvote(69,420);
+        $this->facade->downvote(69, 420);
     }
 
     /**
@@ -334,7 +333,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
             ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
-        $this->facade->downvote(69,420);
+        $this->facade->downvote(69, 420);
     }
 
 }

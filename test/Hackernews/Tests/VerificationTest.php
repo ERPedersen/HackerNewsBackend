@@ -2,12 +2,12 @@
 
 namespace Hackernews\Tests;
 
-use Dotenv\Dotenv;
 use Exception;
+use Hackernews\Entity\User;
 use Hackernews\Exceptions\DuplicateUserException;
 use Hackernews\Facade\UserFacade;
-use Hackernews\Entity\User;
 use Hackernews\Services\TokenService;
+use Hackernews\Traits\Environment;
 use Mockery;
 
 /**
@@ -17,6 +17,7 @@ use Mockery;
  */
 class VerificationTest extends \PHPUnit_Framework_TestCase
 {
+    use Environment;
 
     protected $access;
     protected $facade;
@@ -27,9 +28,6 @@ class VerificationTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $dotenv = new Dotenv(__DIR__ . '/../../..');
-        $dotenv->load();
-
         $this->access = Mockery::mock('Hackernews\Access\IUserAccess');
         $this->facade = new UserFacade($this->access);
         $this->tokenService = new TokenService();
