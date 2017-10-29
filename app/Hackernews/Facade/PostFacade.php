@@ -3,6 +3,7 @@
 namespace Hackernews\Facade;
 
 use Exception;
+use Hackernews\Access\IPostAccess;
 use Hackernews\Access\PostAccess;
 use Hackernews\Entity\Post;
 use Hackernews\Services\UrlService;
@@ -24,7 +25,7 @@ class PostFacade implements IPostFacade
      *
      * @param \Hackernews\Access\PostAccess|null $access
      */
-    function __construct(PostAccess $access = null)
+    function __construct(IPostAccess $access = null)
     {
         $this->access = $access ? $access : new PostAccess();
     }
