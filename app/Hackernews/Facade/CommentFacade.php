@@ -26,7 +26,7 @@ class CommentFacade implements ICommentFacade
      * CommentFacade constructor.
      * @param CommentAccess|null $access
      */
-    function __construct(CommentAccess $access = null)
+    function __construct(ICommentAccess $access = null)
     {
         $this->access = $access ? $access : new CommentAccess();
     }

@@ -10,18 +10,18 @@ use Hackernews\Exceptions\NoUserException;
 use Hackernews\Facade\PostFacade;
 use Mockery;
 
-class PostTest extends \PHPUnit_Framework_TestCase
+class CommentTest extends \PHPUnit_Framework_TestCase
 {
     protected $access;
     protected $facade;
-    protected $newPost;
+    protected $newComment;
 
     /**
      * Setting up variables for the tests.
      */
     protected function setUp()
     {
-        $this->access = Mockery::mock('Hackernews\Access\IPostAccess');
+        $this->access = Mockery::mock('Hackernews\Access\ICommentAccess');
         $this->facade = new PostFacade($this->access);
         $this->newPost = new Post(1,'Test', 'test-slug', 'Test Content', 'test.biz', 'test.biz', 5, '1920-10-10', '5', false, new User(1, 'test', 5), 0);
     }
@@ -50,8 +50,8 @@ class PostTest extends \PHPUnit_Framework_TestCase
             ->andReturn($this->newPost);
 
         $result = $this->facade->createPost('Expose: Using RegEx on HTML will summon the devil',
-                                            'https://coolsite.biz/devil-summoning-through-regex',
-                                            5);
+            'https://coolsite.biz/devil-summoning-through-regex',
+            5);
 
         self::assertEquals($this->newPost, $result);
 
