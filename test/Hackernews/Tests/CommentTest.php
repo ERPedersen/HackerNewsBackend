@@ -2,6 +2,7 @@
 
 namespace Hackernews\Tests;
 
+use Dotenv\Dotenv;
 use Exception;
 use Hackernews\Entity\Comment;
 use Hackernews\Entity\Post;
@@ -23,6 +24,8 @@ class CommentTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $dotenv = new Dotenv(__DIR__ . '/../../..');
+        $dotenv->load();
         $this->access = Mockery::mock('Hackernews\Access\ICommentAccess');
         $this->facade = new CommentFacade($this->access);
         $this->newComment = new Comment(1,69,420,666,'HANS JØRGEN ER FOR VILD', 50000,false, '1920-10-10',new User(1, 'CoolUser', 4), 0);

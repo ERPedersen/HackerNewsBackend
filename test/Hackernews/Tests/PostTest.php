@@ -2,6 +2,7 @@
 
 namespace Hackernews\Tests;
 
+use Dotenv\Dotenv;
 use Exception;
 use Hackernews\Entity\Post;
 use Hackernews\Entity\User;
@@ -21,6 +22,8 @@ class PostTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $dotenv = new Dotenv(__DIR__ . '/../../..');
+        $dotenv->load();
         $this->access = Mockery::mock('Hackernews\Access\IPostAccess');
         $this->facade = new PostFacade($this->access);
         $this->newPost = new Post(1,'Test', 'test-slug', 'Test Content', 'test.biz', 'test.biz', 5, '1920-10-10', '5', false, new User(1, 'test', 5), 0);

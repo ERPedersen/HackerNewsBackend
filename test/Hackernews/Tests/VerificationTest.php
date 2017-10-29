@@ -2,6 +2,7 @@
 
 namespace Hackernews\Tests;
 
+use Dotenv\Dotenv;
 use Exception;
 use Hackernews\Exceptions\DuplicateUserException;
 use Hackernews\Facade\UserFacade;
@@ -26,6 +27,9 @@ class VerificationTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $dotenv = new Dotenv(__DIR__ . '/../../..');
+        $dotenv->load();
+
         $this->access = Mockery::mock('Hackernews\Access\IUserAccess');
         $this->facade = new UserFacade($this->access);
         $this->tokenService = new TokenService();

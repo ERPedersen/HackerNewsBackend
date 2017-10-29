@@ -2,6 +2,7 @@
 
 namespace Hackernews\Tests;
 
+use Dotenv\Dotenv;
 use Exception;
 use Mockery;
 
@@ -20,6 +21,8 @@ class TestTemplate extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $dotenv = new Dotenv(__DIR__ . '/../../..');
+        $dotenv->load();
         // Use this to mock out certain classes. For example, here we are mocking out the UserAccess class.
         $this->access = Mockery::mock('Hackernews\Access\IUserAccess');
     }
