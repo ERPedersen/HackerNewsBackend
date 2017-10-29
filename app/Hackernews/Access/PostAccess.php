@@ -401,9 +401,9 @@ class PostAccess implements IPostAccess
             return "upvote added";
         }catch (PDOException $e) {
             if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
-                throw new NoUserException("The User doesn't exists!");
+                throw new NoUserException("The User doesn't exist!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!") ;
+                throw new NoPostsException("The Post doesn't exist!") ;
             } else {
                 throw $e;
             }
@@ -429,9 +429,9 @@ class PostAccess implements IPostAccess
             return "upvote removed!";
         }catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
-                throw new NoUserException("The User doesn't exists!");
+                throw new NoUserException("The User doesn't exist!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!");
+                throw new NoPostsException("The Post doesn't exist!");
             } else {
                 throw $e;
             }
@@ -457,9 +457,9 @@ class PostAccess implements IPostAccess
             return "downvote added";
         }catch (PDOException $e) {
             if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
-                throw new NoUserException("The User doesn't exists!");
+                throw new NoUserException("The User doesn't exist!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!") ;
+                throw new NoPostsException("The Post doesn't exist!") ;
             } else {
                 throw $e;
             }
@@ -485,9 +485,9 @@ class PostAccess implements IPostAccess
             return "downvote removed!";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
-                throw new NoUserException("The User doesn't exists!");
+                throw new NoUserException("The User doesn't exist!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!");
+                throw new NoPostsException("The Post doesn't exist!");
             } else {
                 throw $e;
             }
@@ -515,9 +515,9 @@ class PostAccess implements IPostAccess
             return ($val == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
-                throw new NoUserException("The User doesn't exists!");
+                throw new NoUserException("The User doesn't exist!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!");
+                throw new NoPostsException("The Post doesn't exist!");
             } else {
                 throw $e;
             }
