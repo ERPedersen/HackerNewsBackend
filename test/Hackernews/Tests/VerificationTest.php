@@ -3,9 +3,9 @@
 namespace Hackernews\Tests;
 
 use Exception;
+use Hackernews\Exceptions\DuplicateUserException;
 use Hackernews\Facade\UserFacade;
 use Hackernews\Entity\User;
-use Hackernews\Access\UserAccess;
 use Hackernews\Services\TokenService;
 use Mockery;
 
@@ -16,6 +16,20 @@ use Mockery;
  */
 class VerificationTest extends \PHPUnit_Framework_TestCase
 {
+
+    protected $access;
+    protected $facade;
+    protected $tokenService;
+
+    /**
+     * Setting up variables for the tests.
+     */
+    protected function setUp()
+    {
+        $this->access = Mockery::mock('Hackernews\Access\IUserAccess');
+        $this->facade = new UserFacade($this->access);
+        $this->tokenService = new TokenService();
+    }
 
     /**
      * Teardown method for test methods.
@@ -30,18 +44,16 @@ class VerificationTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoginWithCorrectCredentials()
     {
-        $tokenService = new TokenService();
-        $access = Mockery::mock('Hackernews\Access\IUserAccess');
-        $access->shouldReceive('verifyUser')
-            ->times(1)
-            ->andReturn(new User(69, 'testuser69', 666, 'test@test.biz'));
+        $newUser = new User(69, 'testuser69', 666, 'test@test.biz');
 
-        $this->facade = new UserFacade($access);
+        $this->access->shouldReceive('verifyUser')
+            ->times(1)
+            ->andReturn($newUser);
 
         $result = $this->facade->verifyUser('test@test.biz','test');
-        $token = $tokenService->decode($result);
+        $token = $this->tokenService->decode($result);
 
-        self::assertEquals($tokenService->verify($token),true);
+        self::assertEquals($this->tokenService->verify($token),true);
     }
 
     /**
@@ -52,15 +64,83 @@ class VerificationTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoginWithIncorrectCredentials()
     {
-        $access = Mockery::mock('Hackernews\Access\IUserAccess');
-        $access->shouldReceive('verifyUser')
+        $this->access->shouldReceive('verifyUser')
             ->times(1)
             ->andThrow(new Exception("Mismatching credentials", 1));
-
-        $this->facade = new UserFacade($access);
 
         $this->facade->verifyUser('badtest@badtest.china','nope');
     }
 
+    /**
+     * Tests for creating a user.
+     */
+    public function testCreateNewUserSuccessfully()
+    {
+        $newUser = new User(69, 'testuser69', 666, 'test@test.biz');
+
+        $this->access->shouldReceive('createUser')
+            ->times(1);
+
+        $this->access->shouldReceive('getUserByEmail')
+            ->times(1)
+            ->andReturn($newUser);
+
+
+        $result = $this->facade->createUser('test@test.biz','test','testuser69');
+        $token = $this->tokenService->decode($result);
+
+        self::assertEquals($this->tokenService->verify($token),true);
+
+
+    }
+
+    /**
+     * Test for incorrectly creating a new user.
+     * @expectedException           Hackernews\Exceptions\DuplicateUserException
+     * @expectedExceptionCode       7
+     * @expectedExceptionMessage    A user already exists with that e-mail or alias
+     */
+    public function testCreateNewUserUnsuccessfully()
+    {
+
+        $this->access->shouldReceive('createUser')
+            ->times(1)
+            ->andThrow(new DuplicateUserException("A user already exists with that e-mail or alias", 7));
+
+
+        $this->facade->createUser('test@test.biz','test','testuser69');
+    }
+
+    /**
+     * Test for getting a user by their ID.
+     */
+    public function testGetExistingUserById()
+    {
+        $user = new User(69, 'testuser69', 666, 'test@test.biz');
+
+        $this->access->shouldReceive('getUserById')
+            ->times(1)
+            ->andReturn($user);
+
+
+        $result = $this->facade->getUserData(69);
+
+        self::assertEquals($user, $result);
+    }
+
+    /**
+     * Test for unsuccessfully getting a user by their ID.
+     * @expectedException Exception
+     */
+    public function testGetExistingUserByIdUnsuccessfully()
+    {
+        $user = new User(69, 'testuser69', 666, 'test@test.biz');
+
+        $this->access->shouldReceive('getUserById')
+            ->times(1)
+            ->andThrow(new Exception());
+
+        $this->facade->getUserData(420);
+    }
 
 }
