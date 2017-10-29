@@ -24,7 +24,7 @@ class TestAccess
         ]);
 
         if($count != 1) {
-            throw new UpdateException("No rows where updated, please check if a value is present in the database", 7);
+            throw new UpdateException("No rows were updated, please check if a value is present in the database", 7);
         }
     }
 
