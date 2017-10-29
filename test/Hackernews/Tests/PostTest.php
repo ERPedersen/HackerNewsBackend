@@ -11,6 +11,7 @@ namespace Hackernews\Tests;
 
 use Hackernews\Entity\Post;
 use Hackernews\Entity\User;
+use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Facade\PostFacade;
 use Mockery;
 
@@ -18,6 +19,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
 {
     protected $access;
     protected $facade;
+    protected $newPost;
 
     /**
      * Setting up variables for the tests.
@@ -26,6 +28,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
     {
         $this->access = Mockery::mock('Hackernews\Access\IPostAccess');
         $this->facade = new PostFacade($this->access);
+        $this->newPost = new Post(1,'Test', 'test-slug', 'Test Content', 'test.biz', 'test.biz', 5, '1920-10-10', '5', false, new User(1, 'test', 5), 0);
     }
 
     /**
@@ -41,7 +44,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreatePostSuccessfully()
     {
-        $newPost = new Post(1,'Test', 'test-slug', 'Test Content', 'test.biz', 'test.biz', 5, '1920-10-10', '5', false, new User(1, 'test', 5), 0);
+
 
         $this->access->shouldReceive('createPost')
             ->times(1)
@@ -49,31 +52,34 @@ class PostTest extends \PHPUnit_Framework_TestCase
 
         $this->access->shouldReceive('getPostById')
             ->times(1)
-            ->andReturn($newPost);
+            ->andReturn($this->newPost);
 
         $result = $this->facade->createPost('Expose: Using RegEx on HTML will summon the devil',
                                             'https://coolsite.biz/devil-summoning-through-regex',
                                             5);
 
-        self::assertEquals($newPost, $result);
+        self::assertEquals($this->newPost, $result);
 
     }
 
     /**
      * Example of unit test, testing that something throws an exception.
      * @expectedException        Exception
-     * @expectedExceptionCode    1
-     * @expectedExceptionMessage Mismatching credentials
+     * @expectedExceptionCode    7
+     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
      */
-    public function testLoginWithIncorrectCredentials()
+    public function testCreateDuplicatePostUnsuccessfully()
     {
-        $this->markTestSkipped("Not a test method, used for examples.");
-
-        // When testing exceptions, use 'andThrow()', and add the exception details to the PHPDoc above the method.
-        $this->access->shouldReceive('verifyUser')
+        $this->access->shouldReceive('createPost')
             ->times(1)
-            ->andThrow(new Exception("Mismatching credentials", 1));
+            ->andReturn(1);
 
-        $this->facade->verifyUser('badtest@badtest.china','nope');
+        $this->access->shouldReceive('getPostById')
+            ->times(1)
+            ->andThrow(new DuplicatePostException("This URL has already been posted before. Reposting is not allowed.", 7));
+
+        $this->facade->createPost('Expose: Using RegEx on HTML will summon the devil',
+            'https://coolsite.biz/devil-summoning-through-regex',
+            5);
     }
 }
