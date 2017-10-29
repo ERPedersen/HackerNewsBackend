@@ -282,20 +282,124 @@ class PostTest extends \PHPUnit_Framework_TestCase
         $this->facade->upvote(69,420);
     }
 
-    public function testDownvoteSuccessfully()
+    /**
+     * Testing that we can downvote a post that we have not downvoted before.
+     */
+    public function testDownvoteSuccessfullyByAdding()
     {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(0);
 
+        $this->access->shouldReceive('addDownvote')
+            ->times(1);
+
+        $this->access->shouldReceive('getPostById')
+            ->times(1)
+            ->andReturn($this->newPost);
+
+        $result = $this->facade->downvote(69,420);
+
+        self::assertEquals($this->newPost, $result);
     }
 
     /**
-     * Testing that we can't create a duplicate story.
-     * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
+     * Testing that we can remove an downvote from a post.
      */
-    public function testDownvoteUnsuccessfully()
+    public function testRemoveDownvoteSuccessfully()
     {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(-1);
 
+        $this->access->shouldReceive('removeDownvote')
+            ->times(1);
+
+        $this->access->shouldReceive('getPostById')
+            ->times(1)
+            ->andReturn($this->newPost);
+
+        $result = $this->facade->downvote(69,420);
+
+        self::assertEquals($this->newPost, $result);
+    }
+
+    /**
+     * Testing that we can downvote a post that we have upvoted before.
+     */
+    public function testChangeUpvoteToDownvote()
+    {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(1);
+
+        $this->access->shouldReceive('changeVote')
+            ->times(1);
+
+        $this->access->shouldReceive('getPostById')
+            ->times(1)
+            ->andReturn($this->newPost);
+
+        $result = $this->facade->downvote(69,420);
+
+        self::assertEquals($this->newPost, $result);
+    }
+
+    /**
+     * Testing that we can't downvote a post or user that doesn't exist.
+     * @expectedException        Exception
+     * @expectedExceptionMessage The User doesn't exist!
+     */
+    public function testDownvoteByAddingUnsuccessfully()
+    {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(0);
+
+        $this->access->shouldReceive('addDownvote')
+            ->times(1)
+            ->andThrow(new NoUserException("The User doesn't exist!"));
+
+
+        $this->facade->downvote(69,420);
+    }
+
+    /**
+     * Testing that we can't remove an downvote from a post or user that doesn't exist.
+     * @expectedException        Exception
+     * @expectedExceptionMessage The User doesn't exist!
+     */
+    public function testRemoveDownvoteUnsuccessfully()
+    {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(-1);
+
+        $this->access->shouldReceive('removeDownvote')
+            ->times(1)
+            ->andThrow(new NoUserException("The User doesn't exist!"));
+
+
+        $this->facade->downvote(69,420);
+    }
+
+    /**
+     * Testing that we can't change an upvote to a downvote from a post or user that doesn't exist.
+     * @expectedException        Exception
+     * @expectedExceptionMessage The User doesn't exist!
+     */
+    public function testChangeUpvoteToDownvoteUnsuccessfully()
+    {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(1);
+
+        $this->access->shouldReceive('changeVote')
+            ->times(1)
+            ->andThrow(new NoUserException("The User doesn't exist!"));
+
+
+        $this->facade->downvote(69,420);
     }
 
 }
