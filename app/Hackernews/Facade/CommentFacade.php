@@ -10,6 +10,7 @@ namespace Hackernews\Facade;
 
 use Hackernews\Access\CommentAccess;
 use Exception;
+use Hackernews\Access\ICommentAccess;
 
 /**
  * Class CommentFacade

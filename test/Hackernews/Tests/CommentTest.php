@@ -3,11 +3,13 @@
 namespace Hackernews\Tests;
 
 use Exception;
+use Hackernews\Entity\Comment;
 use Hackernews\Entity\Post;
 use Hackernews\Entity\User;
 use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoUserException;
-use Hackernews\Facade\PostFacade;
+use Hackernews\Exceptions\ReferenceNotFoundException;
+use Hackernews\Facade\CommentFacade;
 use Mockery;
 
 class CommentTest extends \PHPUnit_Framework_TestCase
@@ -22,8 +24,8 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->access = Mockery::mock('Hackernews\Access\ICommentAccess');
-        $this->facade = new PostFacade($this->access);
-        $this->newPost = new Post(1,'Test', 'test-slug', 'Test Content', 'test.biz', 'test.biz', 5, '1920-10-10', '5', false, new User(1, 'test', 5), 0);
+        $this->facade = new CommentFacade($this->access);
+        $this->newComment = new Comment(1,69,420,666,'HANS JØRGEN ER FOR VILD', 50000,false, '1920-10-10',new User(1, 'CoolUser', 4), 0);
     }
 
     /**
@@ -35,128 +37,65 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can create a post properly.
+     * Testing that we can post a comment properly.
      */
-    public function testCreatePostSuccessfully()
+    public function testPostCommentSuccessfully()
     {
+        $expectation = [
+            'comment_id' => 1,
+            'comment' => $this->newComment
+        ];
 
-
-        $this->access->shouldReceive('createPost')
+        $this->access->shouldReceive('postComment')
             ->times(1)
             ->andReturn(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
-        $result = $this->facade->createPost('Expose: Using RegEx on HTML will summon the devil',
-            'https://coolsite.biz/devil-summoning-through-regex',
-            5);
+        $result = $this->facade->postComment(1,69,'HANS JØRGEN ER FOR VILD',666);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($expectation, $result);
 
     }
 
     /**
-     * Testing that we can't create a duplicate post.
+     * Testing that we can't post a comment to something that doesn't exist.
      * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
+     * @expectedExceptionCode    8
+     * @expectedExceptionMessage Reference was not found to either post or user.
      */
-    public function testCreateDuplicatePostUnsuccessfully()
+    public function testPostCommentUnsuccessfully()
     {
-        $this->access->shouldReceive('createPost')
+        $this->access->shouldReceive('postComment')
             ->times(1)
-            ->andReturn(1);
+            ->andThrow(new ReferenceNotFoundException("Reference was not found to either post or user.", 8));
 
-        $this->access->shouldReceive('getPostById')
-            ->times(1)
-            ->andThrow(new DuplicatePostException("This URL has already been posted before. Reposting is not allowed.", 7));
 
-        $this->facade->createPost('Expose: Using RegEx on HTML will summon the devil',
-            'https://coolsite.biz/devil-summoning-through-regex',
-            5);
+        $this->facade->postComment(1,69,'HANS JØRGEN ER FOR VILD',666);
     }
 
     /**
-     * Testing that we can create a story properly.
+     * Testing that we can get all comments from a specific post.
      */
-    public function testCreateStorySuccessfully()
+    public function testGetCommentByPostId()
     {
 
+        $expectation = [$this->newComment,$this->newComment,$this->newComment];
 
-        $this->access->shouldReceive('createStory')
+        $this->access->shouldReceive('getCommentsByPostId')
             ->times(1)
-            ->andReturn(1);
+            ->andReturn($expectation);
 
-        $this->access->shouldReceive('getPostById')
-            ->times(1)
-            ->andReturn($this->newPost);
+        $result = $this->facade->getCommentByPostId(69,1);
 
-        $result = $this->facade->createStory('Expose: Using RegEx on HTML will summon the devil',
-            'https://coolsite.biz/devil-summoning-through-regex',
-            5);
-
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($expectation, $result);
 
     }
 
     /**
-     * Testing that we can't create a duplicate story.
-     * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
-     */
-    public function testCreateDuplicateStoryUnsuccessfully()
-    {
-        $this->access->shouldReceive('createStory')
-            ->times(1)
-            ->andReturn(1);
-
-        $this->access->shouldReceive('getPostById')
-            ->times(1)
-            ->andThrow(new DuplicatePostException("This URL has already been posted before. Reposting is not allowed.", 7));
-
-        $this->facade->createStory('Expose: Using RegEx on HTML will summon the devil',
-            'https://coolsite.biz/devil-summoning-through-regex',
-            5);
-    }
-
-    /**
-     * Testing that we can get a list of posts.
-     */
-    public function testGetPosts()
-    {
-        $postArray = [$this->newPost,$this->newPost,$this->newPost];
-
-        $this->access->shouldReceive('getPosts')
-            ->times(1)
-            ->andReturn($postArray);
-
-        $result = $this->facade->getPosts(5,1,69);
-
-        self::assertEquals($postArray, $result);
-
-    }
-
-    /**
-     * Testing that we can get posts by their slug.
-     */
-    public function testGetPostsBySlug()
-    {
-        $postArray = [$this->newPost,$this->newPost,$this->newPost];
-
-        $this->access->shouldReceive('getPostBySlug')
-            ->times(1)
-            ->andReturn($postArray);
-
-        $result = $this->facade->getPostBySlug('test-slug',69);
-
-        self::assertEquals($postArray, $result);
-    }
-
-    /**
-     * Testing that we can upvote a post that we have not upvoted before.
+     * Testing that we can upvote a comment that we have not upvoted before.
      */
     public function testUpvoteSuccessfullyByAdding()
     {
@@ -167,13 +106,13 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('addUpvote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->upvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
@@ -188,17 +127,17 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('removeUpvote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->upvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
-     * Testing that we can upvote a post that we have downvoted before.
+     * Testing that we can upvote a comment that we have downvoted before.
      */
     public function testChangeDownvoteToUpvote()
     {
@@ -209,17 +148,17 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('changeVote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->upvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
-     * Testing that we can't upvote a post or user that doesn't exist.
+     * Testing that we can't upvote a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
@@ -238,7 +177,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can't remove an upvote from a post or user that doesn't exist.
+     * Testing that we can't remove an upvote from a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
@@ -257,7 +196,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can't change a downvote to an upvote from a post or user that doesn't exist.
+     * Testing that we can't change a downvote to an upvote from a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
@@ -276,7 +215,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can downvote a post that we have not downvoted before.
+     * Testing that we can downvote a comment that we have not downvoted before.
      */
     public function testDownvoteSuccessfullyByAdding()
     {
@@ -287,17 +226,17 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('addDownvote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->downvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
-     * Testing that we can remove an downvote from a post.
+     * Testing that we can remove an downvote from a comment.
      */
     public function testRemoveDownvoteSuccessfully()
     {
@@ -308,17 +247,17 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('removeDownvote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->downvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
-     * Testing that we can downvote a post that we have upvoted before.
+     * Testing that we can downvote a comment that we have upvoted before.
      */
     public function testChangeUpvoteToDownvote()
     {
@@ -329,17 +268,17 @@ class CommentTest extends \PHPUnit_Framework_TestCase
         $this->access->shouldReceive('changeVote')
             ->times(1);
 
-        $this->access->shouldReceive('getPostById')
+        $this->access->shouldReceive('getCommentById')
             ->times(1)
-            ->andReturn($this->newPost);
+            ->andReturn($this->newComment);
 
         $result = $this->facade->downvote(69,420);
 
-        self::assertEquals($this->newPost, $result);
+        self::assertEquals($this->newComment, $result);
     }
 
     /**
-     * Testing that we can't downvote a post or user that doesn't exist.
+     * Testing that we can't downvote a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
@@ -358,7 +297,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can't remove an downvote from a post or user that doesn't exist.
+     * Testing that we can't remove an downvote from a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
@@ -377,7 +316,7 @@ class CommentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can't change an upvote to a downvote from a post or user that doesn't exist.
+     * Testing that we can't change an upvote to a downvote from a comment or user that doesn't exist.
      * @expectedException        Exception
      * @expectedExceptionMessage The User doesn't exist!
      */
