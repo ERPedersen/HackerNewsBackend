@@ -13,6 +13,7 @@ use Exception;
 use Hackernews\Entity\Post;
 use Hackernews\Entity\User;
 use Hackernews\Exceptions\DuplicatePostException;
+use Hackernews\Exceptions\NoUserException;
 use Hackernews\Facade\PostFacade;
 use Mockery;
 
@@ -183,7 +184,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can upvote a post that we have not upvoted before.
+     * Testing that we can remove an upvote from a post.
      */
     public function testRemoveUpvoteSuccessfully()
     {
@@ -204,7 +205,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can upvote a post that we have not upvoted before.
+     * Testing that we can upvote a post that we have downvoted before.
      */
     public function testChangeDownvoteToUpvote()
     {
@@ -225,10 +226,9 @@ class PostTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Testing that we can't create a duplicate story.
+     * Testing that we can't upvote a post or user that doesn't exist.
      * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
+     * @expectedExceptionMessage The User doesn't exist!
      */
     public function testUpvoteByAddingUnsuccessfully()
     {
@@ -238,32 +238,48 @@ class PostTest extends \PHPUnit_Framework_TestCase
 
         $this->access->shouldReceive('addUpvote')
             ->times(1)
-            ->andThrow(new NotUserException("The User doesn't exist!"));
+            ->andThrow(new NoUserException("The User doesn't exist!"));
 
 
         $this->facade->upvote(69,420);
     }
 
     /**
-     * Testing that we can't create a duplicate story.
+     * Testing that we can't remove an upvote from a post or user that doesn't exist.
      * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
+     * @expectedExceptionMessage The User doesn't exist!
      */
     public function testRemoveUpvoteUnsuccessfully()
     {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(1);
 
+        $this->access->shouldReceive('removeUpvote')
+            ->times(1)
+            ->andThrow(new NoUserException("The User doesn't exist!"));
+
+
+        $this->facade->upvote(69,420);
     }
 
     /**
-     * Testing that we can't create a duplicate story.
+     * Testing that we can't change a downvote to an upvote from a post or user that doesn't exist.
      * @expectedException        Exception
-     * @expectedExceptionCode    7
-     * @expectedExceptionMessage This URL has already been posted before. Reposting is not allowed.
+     * @expectedExceptionMessage The User doesn't exist!
      */
     public function testChangeDownvoteToUpvoteUnsuccessfully()
     {
+        $this->access->shouldReceive('getVote')
+            ->times(1)
+            ->andReturn(-1);
 
+        $this->access->shouldReceive('changeVote')
+            ->times(1)
+            ->andThrow(new NoUserException("The User doesn't exist!"));
+
+
+        $this->facade->upvote(69,420);
     }
 
     public function testDownvoteSuccessfully()
