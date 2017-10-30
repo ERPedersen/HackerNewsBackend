@@ -4,6 +4,7 @@ namespace Hackernews\Facade;
 
 use Exception;
 use Hackernews\Access\TestAccess;
+use Hackernews\Entity\Hanesst;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
 use Hackernews\Services\TokenService;
@@ -103,6 +104,22 @@ class TestFacade implements ITestFacade
 
         try {
             $access->persistHanesstId($hanesst_id);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return \Hackernews\Entity\Hanesst
+     * @throws Exception
+     */
+    public function latestHanesst(Request $request, Response $response): Hanesst {
+        $access = new TestAccess();
+
+        try {
+            return $access->latestHanesst();
         } catch (Exception $e) {
             throw $e;
         }

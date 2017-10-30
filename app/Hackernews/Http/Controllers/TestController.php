@@ -40,4 +40,31 @@ class TestController
 
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function latestHanesst(Request $request, Response $response) {
+
+        $facade = new TestFacade();
+
+        try {
+            $hannest = $facade->latestHanesst($request, $response);
+
+            return $response->withJson(ResponseHandler::success($hannest));
+        } catch (Exception $e) {
+            return $response->withJson(ResponseHandler::error($e));
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return static
+     */
+    public function status(Request $request, Response $response) {
+        return $response->withJson(ResponseHandler::success(['status', 'Alive']));
+    }
+
 }

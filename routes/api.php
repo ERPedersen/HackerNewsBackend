@@ -25,6 +25,10 @@ $app->group("", function () use ($app) {
 
     $app->post("/post", TestController::class . ':postTest');
 
+    $app->get("/latest", TestController::class . ':latestHanesst');
+
+    $app->get("/status", TestController::class . ':status');
+
     $app->post("/login", AuthController::class . ':authenticate')
         ->add(new ValidateLoginCredentials());
 
