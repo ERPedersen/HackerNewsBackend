@@ -11,6 +11,7 @@ use Hackernews\Http\Middleware\CheckIsLoggedIn;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
+use Hackernews\Http\Middleware\ValidateIp;
 use Hackernews\Http\Middleware\ValidateVoteCommentCredentials;
 use Hackernews\Http\Middleware\ValidateVotePostCredentials;
 use Hackernews\Http\Middleware\ValidateKarmaPoints;
@@ -19,11 +20,14 @@ use Hackernews\Http\Middleware\ValidatePaginationCredentials;
 use Hackernews\Http\Middleware\ValidateSignUpCredentials;
 use Hackernews\Http\Middleware\ValidateCreateCommentCredentials;
 
+$app->add(new RKA\Middleware\IpAddress());
+
 $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
 
-    $app->post("/post", TestController::class . ':postTest');
+    $app->post("/post", TestController::class . ':postTest')
+        ->add(new ValidateIp());
 
     $app->get("/latest", TestController::class . ':latestHanesst');
 
