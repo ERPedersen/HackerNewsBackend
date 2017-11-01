@@ -170,4 +170,22 @@ class PostController
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
+
+    public function deletePost(Request $request, Response $response) {
+        $postFacade = new PostFacade();
+
+
+        try {
+            $json = $request->getParsedBody();
+            $postRef = $request->getAttribute('id');
+            $userRef = $request->getAttribute('user_id');
+
+            $result = $postFacade->deletePost($postRef, $userRef);
+            return $response->withJson(ResponseHandler::success($result), 200);
+        } catch (NoPostsException $e) {
+            return $response->withStatus(204);
+        } catch (Exception $e) {
+            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        }
+    }
 }
