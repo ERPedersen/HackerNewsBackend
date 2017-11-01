@@ -17,7 +17,7 @@ class TestAccess
      * @param int $hanesst_id
      * @throws UpdateException
      */
-    public function persistHanesstId(int $hanesst_id) : void {
+    public function persistHanesstId(int $hanesst_id) {
         $stmt = DB::conn()->prepare("UPDATE hanesst SET hanesst_id = :id WHERE id = 1");
 
         $count = $stmt->execute([
