@@ -40,7 +40,7 @@ class TestAccess
         $row = $stmt->fetch();
 
         $haneest = new Hanesst(
-            2
+            $row['hanesst_id']
         );
 
         return $haneest;
