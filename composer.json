@@ -2,7 +2,8 @@
   "require": {
     "slim/slim": "3.*",
     "vlucas/phpdotenv": "^2.4",
-    "lcobucci/jwt": "^3.2"
+    "lcobucci/jwt": "^3.2",
+    "akrabat/rka-ip-address-middleware": "^0.5.0"
   },
   "require-dev": {
     "phpunit/phpunit": "3.7.*",

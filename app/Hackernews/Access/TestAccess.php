@@ -2,6 +2,7 @@
 
 namespace Hackernews\Access;
 
+use Hackernews\Entity\Hanesst;
 use Hackernews\Exceptions\UpdateException;
 use Hackernews\Services\DB;
 
@@ -16,7 +17,7 @@ class TestAccess
      * @param int $hanesst_id
      * @throws UpdateException
      */
-    public function persistHanesstId(int $hanesst_id) : void {
+    public function persistHanesstId(int $hanesst_id) {
         $stmt = DB::conn()->prepare("UPDATE hanesst SET hanesst_id = :id WHERE id = 1");
 
         $count = $stmt->execute([
@@ -26,6 +27,23 @@ class TestAccess
         if($count != 1) {
             throw new UpdateException("No rows where updated, please check if a value is present in the database", 7);
         }
+    }
+
+    /**
+     * @return Hanesst
+     */
+    public function latestHanesst()
+    {
+        $stmt = DB::conn()->prepare("SELECT h.hanesst_id AS hanesst_id FROM hanesst AS h WHERE id = 1");
+
+        $stmt->execute();
+        $row = $stmt->fetch();
+
+        $haneest = new Hanesst(
+            2
+        );
+
+        return $haneest;
     }
 
 }

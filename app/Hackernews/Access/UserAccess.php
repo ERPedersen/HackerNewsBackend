@@ -106,7 +106,7 @@ class UserAccess implements IUserAccess
      */
     public function createUser(String $email, String $password, String $alias)
     {
-        $passwordHash = password_hash($password,PASSWORD_BCRYPT,['cost' => 10]);
+        $passwordHash = password_hash($password,PASSWORD_BCRYPT,['cost' => 4]);
         try {
             DB::conn()->prepare("INSERT INTO users (email, pass, alias) VALUES (:email, :pass, :alias)")->execute([
                 "email" => $email,
