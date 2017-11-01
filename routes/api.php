@@ -34,6 +34,9 @@ $app->group("", function () use ($app) {
     $app->get("/profile", UserController::class . ':getUserData')
         ->add(new EnforceAuthentication());
 
+    $app->post("/update", UserController::class . ':updateUserData')
+        ->add(new EnforceAuthentication());
+
     $app->get("/admin", AdminController::class . ':admin')
         ->add(new EnforceAuthentication());
 

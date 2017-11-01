@@ -5,6 +5,8 @@ namespace Hackernews\Access;
 use Exception;
 use Hackernews\Entity\User;
 use Hackernews\Exceptions\DuplicateUserException;
+use Hackernews\Exceptions\NoUserException;
+use Hackernews\Exceptions\UpdateException;
 use Hackernews\Services\DB;
 use PDOException;
 
@@ -120,5 +122,57 @@ class UserAccess implements IUserAccess
                 throw $e;
             }
         }
+    }
+
+    /**
+     * @param int $id
+     * @param String $email
+     * @param String $alias
+     * @return User
+     * @throws NoUserException
+     * @throws UpdateException
+     */
+    public function updateUser(int $id, String $email, String $alias) {
+        $user = $this->getUserById($id);
+
+        if($user == null) {
+            throw new NoUserException("No user found with the given id.");
+        }
+
+        $sql = "UPDATE users AS u ";
+        $executeArray = ['id' => $id];
+
+        if($email != "") {
+            $sql = $sql . "SET u.email = :email";
+            $executeArray['email'] = $email;
+            $user->setEmail($email);
+        }
+
+        if($alias != "") {
+            if($email != "") {
+                $sql = $sql . ", u.alias = :alias";
+            } else {
+                $sql = $sql . "SET u.alias = :alias";
+            }
+            $executeArray['alias'] = $alias;
+            $user->setAlias($alias);
+        }
+
+        $sql = $sql . " WHERE u.id = :id";
+
+        try {
+            $stmt = DB::conn()->prepare($sql);
+
+            $stmt->execute($executeArray);
+
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                throw new DuplicateUserException("A user already exists with that e-mail or alias", 7);
+            } else {
+                throw $e;
+            }
+        }
+
+        return $user;
     }
 }

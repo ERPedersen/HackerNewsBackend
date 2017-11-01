@@ -107,4 +107,22 @@ class UserFacade implements IUserFacade
             throw $e;
         }
     }
+
+    /**
+     * @param int $id
+     * @param String $email
+     * @param String $alias
+     * @return \Hackernews\Entity\User
+     * @throws Exception
+     */
+    public function updateUser(int $id, String $email, String $alias)
+    {
+        try {
+            $user = $this->access->updateUser($id, $email, $alias);
+
+            return $user;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }
