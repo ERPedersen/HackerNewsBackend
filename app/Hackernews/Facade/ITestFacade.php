@@ -2,6 +2,7 @@
 
 namespace Hackernews\Facade;
 
+use Hackernews\Entity\Hanesst;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -33,4 +34,10 @@ interface ITestFacade
      */
     public function postRequest(Request $request, Response $response): Response;
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Hanesst
+     */
+    public function latestHanesst(Request $request, Response $response): Hanesst;
 }
