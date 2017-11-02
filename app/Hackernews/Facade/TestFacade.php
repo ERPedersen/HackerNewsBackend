@@ -5,6 +5,7 @@ namespace Hackernews\Facade;
 use Exception;
 use Hackernews\Access\TestAccess;
 use Hackernews\Entity\Hanesst;
+use Hackernews\Exceptions\NoUserException;
 use Hackernews\Http\Controllers\AuthController;
 use Hackernews\Http\Controllers\PostController;
 use Hackernews\Services\TokenService;
@@ -47,11 +48,17 @@ class TestFacade implements ITestFacade
      * @param Request $request
      * @param Response $response
      * @return Request
+     * @throws NoUserException
      */
     public function addTokenToHeader(Request $request, Response $response): Request
     {
         $responseWithToken = $this->getToken($request, $response);
         $arr = json_decode($responseWithToken->getBody(), true);
+
+        if(!isset($arr['data'])) {
+            throw new NoUserException("No user with those credentials", 401);
+        }
+
         $token = $arr['data'];
 
         $request = $request->withAddedHeader('Authorization', 'Bearer ' . $token);

@@ -28,15 +28,14 @@ class TestController
         try {
             $request = $facade->refactorInitialRequest($request);
             $request = $facade->addTokenToHeader($request, $response);
-            $facade->persistHanesstId($request, $response);
-
-            $result = $facade->postRequest($request, $response);
-
-            return $response->withJson(ResponseHandler::success($result));
-
         } catch (Exception $e) {
-            return $response->withJson(ResponseHandler::error($e));
+            return $response->withStatus($e->getCode())->withJson(ResponseHandler::error($e));
         }
+
+        $facade->persistHanesstId($request, $response);
+        $result = $facade->postRequest($request, $response);
+
+        return $response->withJson(ResponseHandler::success($result));
 
     }
 
