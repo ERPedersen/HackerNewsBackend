@@ -51,7 +51,7 @@ class TestController
         try {
             $hannest = $facade->latestHanesst($request, $response);
 
-            return $response->withJson(ResponseHandler::success($hannest));
+            return $response->withHeader("Content-Type", "text/plain")->write($hannest->getHanesstId());
         } catch (Exception $e) {
             return $response->withJson(ResponseHandler::error($e));
         }
@@ -60,10 +60,10 @@ class TestController
     /**
      * @param Request $request
      * @param Response $response
-     * @return static
+     * @return Response
      */
     public function status(Request $request, Response $response) {
-        return $response->withJson(ResponseHandler::success(['status', 'Alive']));
+        return $response->withHeader("Content-Type", "text/plain")->write("Alive");
     }
 
 }
