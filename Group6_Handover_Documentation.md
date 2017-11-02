@@ -131,6 +131,8 @@ Blue/green deployments allow us to test the new application version before sendi
 
 The web application frontend for the system is available at **http://hackernews.emilrosenius.com/**. User registration is available, but a test user has been prepared which has the necessary karma to properly test the system fully.
 
+The API address for accessing the REST endpoints is available at **http://api.hackernews.emilrosenius.com/**.
+
 **NB!** The credentials will be sent by email to the group that has to operate our system.
 
 ## Bug Reports & Issues
