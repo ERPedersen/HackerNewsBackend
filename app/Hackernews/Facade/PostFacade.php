@@ -156,4 +156,8 @@ class PostFacade implements IPostFacade
             throw $e;
         }
     }
+
+    public function deletePost(int $postRef, int $userRef) {
+        return $this->access->deletePost($postRef, $userRef);
+    }
 }

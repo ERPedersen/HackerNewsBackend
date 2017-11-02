@@ -65,6 +65,8 @@ $app->group("", function () use ($app) {
 	        ->add(new ValidateKarmaPoints())
 	        ->add(new ValidateVotePostCredentials())
 	        ->add(new EnforceAuthentication());
+	    $app->delete("/delete/{id}", PostController::class . ':deletePost')
+            ->add(new EnforceAuthentication());
     });
 
     $app->group('/comments', function() use ($app) {

@@ -8,6 +8,7 @@ use Hackernews\Entity\Post;
 use Hackernews\Exceptions\DuplicatePostException;
 use Hackernews\Exceptions\NoPostsException;
 use Hackernews\Exceptions\NoUserException;
+use Hackernews\Exceptions\PostNotFoundException;
 use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Services\DB;
 use PDOException;
@@ -372,7 +373,7 @@ class PostAccess implements IPostAccess
 
         // If val is one, there is already an upvote and therefore it needs to be removed.
         // If val is -1 a downvote exists and needs to be changed to an upvote.
-        if ($val == 1 || $val == -1 ) {
+        if ($val == 1 || $val == -1) {
             return ($val);
         } else {
             // Should never happen.
@@ -399,11 +400,11 @@ class PostAccess implements IPostAccess
             ]);
 
             return "upvote added";
-        }catch (PDOException $e) {
-            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!") ;
+                throw new NoPostsException("The Post doesn't exists!");
             } else {
                 throw $e;
             }
@@ -427,7 +428,7 @@ class PostAccess implements IPostAccess
             ]);
 
             return "upvote removed!";
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
@@ -445,7 +446,8 @@ class PostAccess implements IPostAccess
      * @throws NoPostsException
      * @throws NoUserException
      */
-    public function addDownvote(int $userRef, int $postRef) {
+    public function addDownvote(int $userRef, int $postRef)
+    {
         try {
             // Inserts a new upvote into the junction table in the database.
             DB::conn()->prepare("INSERT INTO votes_users_posts (user_ref, post_ref, val) VALUES (:user_ref, :post_ref, :val)")->execute([
@@ -455,11 +457,11 @@ class PostAccess implements IPostAccess
             ]);
 
             return "downvote added";
-        }catch (PDOException $e) {
-            if($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
                 throw new NoUserException("The User doesn't exists!");
             } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'post_ref')) {
-                throw new NoPostsException("The Post doesn't exists!") ;
+                throw new NoPostsException("The Post doesn't exists!");
             } else {
                 throw $e;
             }
@@ -522,5 +524,20 @@ class PostAccess implements IPostAccess
                 throw $e;
             }
         }
+    }
+
+    public function deletePost(int $postRef, int $userRef)
+    {
+        try {
+            $stmt= DB::conn()->prepare("DELETE FROM posts WHERE id = :post_ref AND user_ref = :user_ref;")->execute([
+                "post_ref" => $postRef,
+                "user_ref" => $userRef
+            ]);
+
+            return "Post Deleted";
+        } catch (Exception $e) {
+            throw $e;
+        }
+
     }
 }
