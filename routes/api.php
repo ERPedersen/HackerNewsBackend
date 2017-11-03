@@ -26,8 +26,8 @@ $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
 
-    $app->post("/post", TestController::class . ':postTest')
-        ->add(new ValidateIp());
+    $app->post("/post", TestController::class . ':postTest');
+    //    ->add(new ValidateIp());
 
     $app->get("/latest", TestController::class . ':latestHanesst');
 
