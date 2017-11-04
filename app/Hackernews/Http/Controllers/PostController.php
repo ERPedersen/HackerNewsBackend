@@ -10,6 +10,7 @@ use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Facade\CommentFacade;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Logging\CloudWatchLog;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -107,6 +108,7 @@ class PostController
 
             return $response->withJson(ResponseHandler::success($data), 200);
         } catch (NoPostsException $e) {
+            CloudWatchLog::Instance()->notice($e->getMessage());
             return $response->withStatus(204);
         } catch (Exception $e) {
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
