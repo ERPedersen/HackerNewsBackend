@@ -10,6 +10,7 @@ use Hackernews\Http\Controllers\UserController;
 use Hackernews\Http\Middleware\CheckIsLoggedIn;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
+use Hackernews\Http\Middleware\ValidateContentType;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
 use Hackernews\Http\Middleware\ValidateIp;
 use Hackernews\Http\Middleware\ValidateVoteCommentCredentials;
@@ -26,7 +27,8 @@ $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
 
-    $app->post("/post", TestController::class . ':postTest');
+    $app->post("/post", TestController::class . ':postTest')
+        ->add(new ValidateContentType());
     //    ->add(new ValidateIp());
 
     $app->get("/latest", TestController::class . ':latestHanesst');
@@ -34,10 +36,12 @@ $app->group("", function () use ($app) {
     $app->get("/status", TestController::class . ':status');
 
     $app->post("/login", AuthController::class . ':authenticate')
-        ->add(new ValidateLoginCredentials());
+        ->add(new ValidateLoginCredentials())
+        ->add(new ValidateContentType());
 
     $app->post("/sign-up", AuthController::class . ':signUp')
-        ->add(new ValidateSignUpCredentials());
+        ->add(new ValidateSignUpCredentials())
+        ->add(new ValidateContentType());
 
     $app->get("/profile", UserController::class . ':getUserData')
         ->add(new EnforceAuthentication());
@@ -52,36 +56,44 @@ $app->group("", function () use ($app) {
 
 	    $app->post("", PostController::class . ':createPost')
 	        ->add(new ValidateCreatePostCredentials())
-	        ->add(new EnforceAuthentication());
+	        ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
 
 	    $app->get("/{slug}", PostController::class . ':getPost')
 	        ->add(new CheckIsLoggedIn());
 
 	    $app->post("/upvote", PostController::class . ':upvotePost')
 	        ->add(new ValidateVotePostCredentials())
-	        ->add(new EnforceAuthentication());
+	        ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
 
 	    $app->post("/downvote", PostController::class . ':downvotePost')
 	        ->add(new ValidateKarmaPoints())
 	        ->add(new ValidateVotePostCredentials())
-	        ->add(new EnforceAuthentication());
+	        ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
     });
 
     $app->group('/comments', function() use ($app) {
 	    $app->post("", CommentController::class . ':createComment')
 	        ->add(new ValidateCreateCommentCredentials())
-	        ->add(new EnforceAuthentication());
+	        ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
 
 		$app->get("/{id}", CommentController::class . ':getComments')
             ->add(new CheckIsLoggedIn())
 		    ->add(new ValidatePaginationCredentials());
+
 		$app->post('/upvote', CommentController::class . ':upvoteComment')
             ->add(new ValidateVoteCommentCredentials())
-            ->add(new EnforceAuthentication());
+            ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
+
         $app->post('/downvote', CommentController::class . ':downvoteComment')
             ->add(new ValidateKarmaPoints())
             ->add(new ValidateVoteCommentCredentials())
-            ->add(new EnforceAuthentication());
+            ->add(new EnforceAuthentication())
+            ->add(new ValidateContentType());
     });
 
     $app->options('/{routes:.+}', function ($request, $response, $args) {
