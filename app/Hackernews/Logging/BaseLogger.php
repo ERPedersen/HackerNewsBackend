@@ -21,7 +21,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function __construct()
     {
-        $logger = new Logger(getenv('AWS_CW_LOG_IDENTIFIER'));
+        $logger = new Logger(CW_LOG_IDENTIFIER);
 
         foreach (static::getHandlers() as $handler) {
             $logger->pushHandler($handler);
