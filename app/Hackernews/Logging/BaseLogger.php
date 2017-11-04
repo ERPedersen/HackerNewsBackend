@@ -4,9 +4,11 @@
 namespace Hackernews\Logging;
 
 
+use Maxbanton\Cwh\Handler\CloudWatch;
+use Mockery\Exception;
 use Monolog\Logger;
 
-abstract class BaseLog implements IBaseLog
+abstract class BaseLogger implements IBaseLogger
 {
 
     /**
@@ -15,24 +17,25 @@ abstract class BaseLog implements IBaseLog
     private $logger;
 
     /**
-     * BaseLog constructor.
-     * @param Logger $logger
-     * @internal param string $logName
-     * @internal param string $logPath
-     * @internal param LineFormatter $formatter
-     * @internal param StreamHandler $handler
+     * BaseLogger constructor.
      */
-    public function __construct(Logger $logger)
+    public function __construct()
     {
+        $logger = new Logger(getenv('AWS_CW_LOG_IDENTIFIER'));
+
+        foreach (static::getHandlers() as $handler) {
+            $logger->pushHandler($handler);
+        }
+
         $this->logger = $logger;
     }
 
     /**
      * Should set up and return a logger from a set of configurations.
      *
-     * @return Logger
+     * @return CloudWatch[]
      */
-    protected abstract static function getLogger();
+    protected abstract static function getHandlers();
 
     /**
      * Logs a message with the debug level.
@@ -43,7 +46,11 @@ abstract class BaseLog implements IBaseLog
      */
     public function debug($msg, $data = [])
     {
-        $this->logger->debug($msg, $data);
+        try {
+            $this->logger->debug($msg, $data);
+        } catch (Exception $e) {
+            die('test');
+        }
     }
 
     /**

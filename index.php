@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+require 'config/setup.php';
 
 use Slim\App as App;
 use Slim\Container;

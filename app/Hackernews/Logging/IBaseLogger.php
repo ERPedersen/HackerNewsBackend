@@ -4,7 +4,7 @@
 namespace Hackernews\Logging;
 
 
-interface IBaseLog
+interface IBaseLogger
 {
     /**
      * Logs a message with the debug level.
