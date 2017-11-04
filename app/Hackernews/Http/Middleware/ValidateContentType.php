@@ -25,7 +25,7 @@ class ValidateContentType
 
 
             if(!isset($headers['CONTENT_TYPE']) || strtolower($headers['CONTENT_TYPE'][0]) != "application/json") {
-                throw new InvalidContentTypeException("The content type is invalid. Should be Application/Json.", 415);
+                throw new InvalidContentTypeException("The content type is invalid. Should be application/json.", 415);
             }
 
             return $next($request, $response);
