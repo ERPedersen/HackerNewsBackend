@@ -10,6 +10,7 @@ use Hackernews\Http\Controllers\UserController;
 use Hackernews\Http\Middleware\CheckIsLoggedIn;
 use Hackernews\Http\Middleware\EnforceAuthentication;
 use Hackernews\Http\Middleware\AllowCrossOrigin;
+use Hackernews\Http\Middleware\ValidateContentType;
 use Hackernews\Http\Middleware\ValidateCreatePostCredentials;
 use Hackernews\Http\Middleware\ValidateIp;
 use Hackernews\Http\Middleware\ValidateVoteCommentCredentials;
@@ -26,7 +27,8 @@ $app->group("", function () use ($app) {
 
     $app->get("/", IndexController::class . ':index');
 
-    $app->post("/post", TestController::class . ':postTest');
+    $app->post("/post", TestController::class . ':postTest')
+        ->add(new ValidateContentType());
     //    ->add(new ValidateIp());
 
     $app->get("/latest", TestController::class . ':latestHanesst');
