@@ -34,7 +34,7 @@ class TestFacade implements ITestFacade
         $this->newBody = new stdClass();
         $this->newBody->email = $json['username'] . "@test.com";
         $this->newBody->password = $json['pwd_hash'];
-        $this->newBody->title = $json['post_title'];
+        $this->newBody->title = ($json['post_title'] == "") ? "SPAM: This is test spam" : $json['post_title'];
         $this->newBody->hanesst_id = $json['hanesst_id'];
         $this->newBody->content = "TEST STORY: Generated from Helge's script";
 
