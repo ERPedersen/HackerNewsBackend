@@ -3,6 +3,7 @@
 namespace Hackernews\Http\Controllers;
 
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Logging\ApiLogger;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -20,6 +21,7 @@ class AdminController
      */
     public function admin(Request $request, Response $response)
     {
+        ApiLogger::Instance()->logEndpointEvent("info", $request);
 
         $alias = $request->getAttribute('user_alias');
 

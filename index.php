@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+require 'config/setup.php';
 
 use Slim\App as App;
 use Slim\Container;
@@ -16,5 +17,4 @@ $container['settings']['displayErrorDetails'] = true;
 $app = new App($container);
 
 require 'routes/api.php';
-
 $app->run();

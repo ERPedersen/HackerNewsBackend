@@ -4,6 +4,7 @@ namespace Hackernews\Http\Controllers;
 
 use Hackernews\Example;
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Logging\ApiLogger;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -21,6 +22,7 @@ class IndexController
      */
     public static function index(Request $request, Response $response)
     {
+        ApiLogger::Instance()->logEndpointEvent("info", $request);
         return $response->withJson(ResponseHandler::success(getenv('DB_SCHEMA')));
     }
 }

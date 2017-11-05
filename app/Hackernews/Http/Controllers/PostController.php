@@ -10,6 +10,8 @@ use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Facade\CommentFacade;
 use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Logging\ApiLogger;
+use Hackernews\Logging\ExceptionLogger;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -27,13 +29,14 @@ class PostController
      */
     public function createPost(Request $request, Response $response)
     {
-
-        $json = $request->getParsedBody();
-        $postType = $request->getAttribute('post_type');
-        $userRef = $request->getAttribute('user_id');
-        $title = $json['title'];
-
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
+            $json = $request->getParsedBody();
+            $postType = $request->getAttribute('post_type');
+            $userRef = $request->getAttribute('user_id');
+            $title = $json['title'];
+
             $postFacade = new PostFacade();
 
             if ($postType === 'story') {
@@ -48,8 +51,10 @@ class PostController
 
             return $response->withJson(ResponseHandler::success($result));
         } catch (DuplicatePostException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'warning', $request);
             return $response->withStatus(409)->withJson(ResponseHandler::error($e));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -61,12 +66,13 @@ class PostController
      */
     public function getPosts(Request $request, Response $response)
     {
-
-        $limit = $request->getParam('limit');
-        $page = $request->getParam('page');
-        $userRef = $request->getAttribute("user_id");
-
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
+            $limit = $request->getParam('limit');
+            $page = $request->getParam('page');
+            $userRef = $request->getAttribute("user_id");
+
             $postFacade = new PostFacade();
 
             if ($limit && $page) {
@@ -77,8 +83,10 @@ class PostController
 
             return $response->withJson(ResponseHandler::success($result));
         } catch (NoPostsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(200)->withJson(ResponseHandler::success([]));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -91,9 +99,11 @@ class PostController
     public function getPost(Request $request, Response $response)
     {
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
             $slug = $request->getAttribute('slug');
-            $userRef = $request->getAttribute("user_id");  
-            
+            $userRef = $request->getAttribute("user_id");
+
             $postFacade = new PostFacade();
             $commentFacade = new CommentFacade();
 
@@ -107,8 +117,10 @@ class PostController
 
             return $response->withJson(ResponseHandler::success($data), 200);
         } catch (NoPostsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -120,9 +132,10 @@ class PostController
      */
     public function upvotePost(Request $request, Response $response)
     {
-        $postFacade = new PostFacade();
-
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
+            $postFacade = new PostFacade();
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
             $postRef = $json['post_ref'];
@@ -132,12 +145,13 @@ class PostController
             return $response->withJson(ResponseHandler::success($result), 200);
 
         } catch (NoPostsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (NoUserException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
-        } catch (WrongValueException $e) {
-            return $response->withStatus(500)->withJson(ResponseHandler::error($e));
-        } catch (Exception $e) {
+        } catch (WrongValueException | Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -149,9 +163,10 @@ class PostController
      */
     public function downvotePost(Request $request, Response $response)
     {
-        $postFacade = new PostFacade();
-
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
+            $postFacade = new PostFacade();
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
             $postRef = $json['post_ref'];
@@ -161,12 +176,16 @@ class PostController
             return $response->withJson(ResponseHandler::success($result), 200);
 
         } catch (NoPostsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (NoUserException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (WrongValueException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }

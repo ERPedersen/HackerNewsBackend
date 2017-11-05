@@ -15,6 +15,8 @@ use Hackernews\Exceptions\NoUserException;
 use Hackernews\Exceptions\WrongValueException;
 use Hackernews\Facade\CommentFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
+use Hackernews\Logging\ApiLogger;
+use Hackernews\Logging\ExceptionLogger;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -28,6 +30,8 @@ class CommentController
     public function getComments(Request $request, Response $response)
     {
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
             $id = $request->getAttribute('id');
             $userRef = $request->getAttribute('user_id');
 
@@ -45,6 +49,7 @@ class CommentController
 
             return $response->withJson(ResponseHandler::success($comments), 200);
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -57,6 +62,7 @@ class CommentController
     public function createComment(Request $request, Response $response)
     {
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
 
             $json = $request->getParsedBody();
             $user = $request->getAttribute('user_id');
@@ -73,9 +79,9 @@ class CommentController
                 $result = $commentFacade->postComment($user, $post, $content, $commentRef);
             }
 
-
             return $response->withStatus(200)->withJson(ResponseHandler::success($result));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
 
@@ -91,6 +97,8 @@ class CommentController
         $commentFacade = new CommentFacade();
 
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
             $commentRef = $json['comment_ref'];
@@ -100,12 +108,16 @@ class CommentController
             return $response->withJson(ResponseHandler::success($result), 200);
 
         } catch (NoCommentsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (NoUserException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (WrongValueException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
@@ -120,6 +132,8 @@ class CommentController
         $commentFacade = new CommentFacade();
 
         try {
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
+
             $json = $request->getParsedBody();
             $userRef = $request->getAttribute('user_id');
             $commentRef = $json['comment_ref'];
@@ -129,12 +143,16 @@ class CommentController
             return $response->withJson(ResponseHandler::success($result), 200);
 
         } catch (NoCommentsException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (NoUserException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
         } catch (WrongValueException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         } catch (Exception $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
