@@ -150,7 +150,10 @@ class PostController
         } catch (NoUserException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
-        } catch (WrongValueException | Exception $e) {
+        } catch (WrongValueException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500);
+        } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
