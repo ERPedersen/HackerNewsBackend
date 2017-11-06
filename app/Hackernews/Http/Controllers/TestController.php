@@ -26,13 +26,13 @@ class TestController
     public function postTest(Request $request, Response $response)
     {
         try {
-//            ApiLogger::Instance()->logEndpointEvent("info", $request);
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
 
             $facade = new TestFacade();
             $request = $facade->refactorInitialRequest($request);
             $request = $facade->addTokenToHeader($request, $response);
         } catch (Exception $e) {
-//            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus($e->getCode())->withJson(ResponseHandler::error($e));
         }
 
@@ -51,14 +51,14 @@ class TestController
     public function latestHanesst(Request $request, Response $response)
     {
         try {
-//            ApiLogger::Instance()->logEndpointEvent("info", $request);
+            ApiLogger::Instance()->logEndpointEvent("info", $request);
 
             $facade = new TestFacade();
             $hannest = $facade->latestHanesst($request, $response);
 
             return $response->withHeader("Content-Type", "text/plain")->write($hannest->getHanesstId());
         } catch (Exception $e) {
-//            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withJson(ResponseHandler::error($e));
         }
     }
@@ -70,7 +70,7 @@ class TestController
      */
     public function status(Request $request, Response $response)
     {
-//        ApiLogger::Instance()->logEndpointEvent("info", $request);
+        ApiLogger::Instance()->logEndpointEvent("info", $request);
 
         return $response->withHeader("Content-Type", "text/plain")->write("Alive");
     }
