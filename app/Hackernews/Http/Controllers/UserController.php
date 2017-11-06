@@ -20,7 +20,7 @@ class UserController
     public function getUserData(Request $request, Response $response)
     {
         try {
-            ApiLogger::Instance()->logEndpointEvent("info", $request);
+//            ApiLogger::Instance()->logEndpointEvent("info", $request);
 
             $id = $request->getAttribute('user_id');
             $userFacade = new UserFacade();
@@ -28,7 +28,7 @@ class UserController
 
             return $response->withJson(ResponseHandler::success($user));
         } catch (Exception $e) {
-            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+//            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
         }
     }
