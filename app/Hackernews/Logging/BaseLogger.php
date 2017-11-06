@@ -21,13 +21,13 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function __construct()
     {
-        $logger = new Logger(CW_LOG_IDENTIFIER);
-
-        foreach (static::getHandlers() as $handler) {
-            $logger->pushHandler($handler);
-        }
-
-        $this->logger = $logger;
+//        $logger = new Logger(CW_LOG_IDENTIFIER);
+//
+//        foreach (static::getHandlers() as $handler) {
+//            $logger->pushHandler($handler);
+//        }
+//
+//        $this->logger = $logger;
     }
 
     /**
@@ -46,11 +46,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function debug($msg, $data = [])
     {
-        try {
-            $this->logger->debug($msg, $data);
-        } catch (Exception $e) {
-            die('test');
-        }
+//        $this->logger->debug($msg, $data);
     }
 
     /**
@@ -62,7 +58,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function info($msg, $data = [])
     {
-        $this->logger->info($msg, $data);
+//        $this->logger->info($msg, $data);
     }
 
     /**
@@ -74,7 +70,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function notice($msg, $data = [])
     {
-        $this->logger->notice($msg, $data);
+//        $this->logger->notice($msg, $data);
     }
 
     /**
@@ -86,7 +82,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function warning($msg, $data = [])
     {
-        $this->logger->warning($msg, $data);
+//        $this->logger->warning($msg, $data);
     }
 
     /**
@@ -98,7 +94,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function error($msg, $data = [])
     {
-        $this->logger->error($msg, $data);
+//        $this->logger->error($msg, $data);
     }
 
     /**
@@ -110,7 +106,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function critical($msg, $data = [])
     {
-        $this->logger->critical($msg, $data);
+//        $this->logger->critical($msg, $data);
     }
 
     /**
@@ -122,7 +118,7 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function alert($msg, $data = [])
     {
-        $this->logger->alert($msg, $data);
+//        $this->logger->alert($msg, $data);
     }
 
     /**
@@ -134,6 +130,6 @@ abstract class BaseLogger implements IBaseLogger
      */
     public function emergency($msg, $data = [])
     {
-        $this->logger->emergency($msg, $data);
+//        $this->logger->emergency($msg, $data);
     }
 }
