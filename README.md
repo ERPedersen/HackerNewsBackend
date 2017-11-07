@@ -19,5 +19,5 @@ This is the backend for the Hacker News Clone project.
 - Linux
 - Apache
 - MySQL
-- PHP
+- PHP 
 
