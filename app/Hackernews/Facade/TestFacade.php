@@ -52,23 +52,9 @@ class TestFacade implements ITestFacade
      */
     public function addTokenToHeader(Request $request, Response $response): Request
     {
-        $responseWithToken = $this->getToken($request, $response);
-        $arr = json_decode($responseWithToken->getBody(), true);
+        $this->newBody->user_id = "911121";
 
-        if(!isset($arr['data'])) {
-            throw new NoUserException("No user with those credentials", 401);
-        }
-
-        $token = $arr['data'];
-
-        $request = $request->withAddedHeader('Authorization', 'Bearer ' . $token);
-
-        $tokenService = new TokenService();
-        $token = $tokenService->decode($token);
-
-        $this->newBody->user_id = $token->getClaim('id');
-
-        $request = $request->withAttribute("user_id", $token->getClaim('id'));
+        $request = $request->withAttribute("user_id", "911121");
         $request = $request->withParsedBody((array)$this->newBody);
 
         return $request;
