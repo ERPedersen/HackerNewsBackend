@@ -185,7 +185,6 @@ The following parameters must be contained in the body of the request:
 ```
 
 #### Responses
-
 ##### 200 OK
 
 Upon success, the user is saved in the system and the following response is sent with a JSON web token, which can be used to authorize privileges on all subsequent requests.
