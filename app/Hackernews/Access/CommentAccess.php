@@ -95,8 +95,6 @@ class CommentAccess implements ICommentAccess
                 array_push($results, $comment);
             }
 
-            $stmt = null;
-
             // Check pagination
             if (count($results) == $limit) {
                 $hasMore = true;
@@ -128,8 +126,6 @@ class CommentAccess implements ICommentAccess
                 'comment_ref' => $commentRef,
                 'content' => $content
             ]);
-
-            $stmt = null;
 
             return DB::conn()->lastInsertId();
 
@@ -202,8 +198,6 @@ class CommentAccess implements ICommentAccess
 
             }
 
-            $stmt = null;
-
             return $comment;
 
         } catch (PDOException $e) {
@@ -235,8 +229,6 @@ class CommentAccess implements ICommentAccess
 
             $row = $stmt->fetch();
             $val = $row['val'];
-
-            $stmt = null;
 
             // If val is one, there is already an upvote and therefore it needs to be removed.
             // If val is -1 a downvote exists and needs to be changed to an upvote.
@@ -276,8 +268,6 @@ class CommentAccess implements ICommentAccess
                 "val" => 1
             ]);
 
-            $stmt = null;
-
             return "upvote added";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
@@ -309,8 +299,6 @@ class CommentAccess implements ICommentAccess
                 "val" => -1
             ]);
 
-            $stmt = null;
-
             return "downvote added";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
@@ -341,8 +329,6 @@ class CommentAccess implements ICommentAccess
                 "comment_ref" => $commentRef
             ]);
 
-            $stmt = null;
-
             return "upvote removed!";
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
@@ -372,8 +358,6 @@ class CommentAccess implements ICommentAccess
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
             ]);
-
-            $stmt = null;
 
             return "downvote removed!";
         } catch (PDOException $e) {
@@ -406,8 +390,6 @@ class CommentAccess implements ICommentAccess
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
             ]);
-
-            $stmt = null;
 
             return ($value == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
         } catch (PDOException $e) {

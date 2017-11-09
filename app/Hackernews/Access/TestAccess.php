@@ -28,7 +28,6 @@ class TestAccess
                 "id" => $hanesst_id
             ]);
 
-            $stmt = null;
 
             if ($count != 1) {
                 throw new UpdateException("No rows where updated, please check if a value is present in the database", 7);
@@ -48,8 +47,6 @@ class TestAccess
 
             $stmt->execute();
             $row = $stmt->fetch();
-
-            $stmt = null;
 
             $haneest = new Hanesst(
                 $row['hanesst_id']

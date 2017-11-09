@@ -49,7 +49,6 @@ class PostAccess implements IPostAccess
 
             $lastId = $stmt->lastInsertId();
 
-            $stmt = null;
 
             return $lastId;
         } catch (PDOException $e) {
@@ -91,7 +90,6 @@ class PostAccess implements IPostAccess
 
             $lastId = $stmt->lastInsertId();
 
-            $stmt = null;
 
             return $lastId;
 
@@ -151,7 +149,6 @@ class PostAccess implements IPostAccess
 
             $row = $stmt->fetch();
 
-            $stmt = null;
 
             $author = new User(
                 $row['author_id'],
@@ -221,7 +218,6 @@ class PostAccess implements IPostAccess
 
             $row = $stmt->fetch();
 
-            $stmt = null;
 
             $author = new User(
                 $row['author_id'],
@@ -321,7 +317,6 @@ class PostAccess implements IPostAccess
                 array_push($results, $post);
             }
 
-            $stmt = null;
 
             if (count($results) == $limit) {
                 $hasMore = true;
@@ -365,7 +360,6 @@ class PostAccess implements IPostAccess
                     array_push($slugs, $row['slug']);
                 }
 
-                $stmt = null;
 
                 // Keep incrementing, until we don't find anything
                 while (in_array(($slug . '-' . $max), $slugs)) {
@@ -405,7 +399,6 @@ class PostAccess implements IPostAccess
             $row = $stmt->fetch();
             $val = $row['val'];
 
-            $stmt = null;
 
             // If val is one, there is already an upvote and therefore it needs to be removed.
             // If val is -1 a downvote exists and needs to be changed to an upvote.
@@ -440,7 +433,6 @@ class PostAccess implements IPostAccess
                 "val" => 1
             ]);
 
-            $stmt = null;
 
             return "upvote added";
         } catch (PDOException $e) {
@@ -472,7 +464,6 @@ class PostAccess implements IPostAccess
                 "post_ref" => $postRef
             ]);
 
-            $stmt = null;
 
             return "upvote removed!";
         } catch (PDOException $e) {
@@ -505,7 +496,6 @@ class PostAccess implements IPostAccess
                 "val" => -1
             ]);
 
-            $stmt = null;
 
             return "downvote added";
         } catch (PDOException $e) {
@@ -537,7 +527,6 @@ class PostAccess implements IPostAccess
                 "post_ref" => $postRef
             ]);
 
-            $stmt = null;
 
             return "downvote removed!";
         } catch (PDOException $e) {
@@ -571,7 +560,6 @@ class PostAccess implements IPostAccess
                 "post_ref" => $postRef
             ]);
 
-            $stmt = null;
 
             return ($val == 1) ? "downvote changed to upvote" : "upvote changed to downvote";
         } catch (PDOException $e) {
