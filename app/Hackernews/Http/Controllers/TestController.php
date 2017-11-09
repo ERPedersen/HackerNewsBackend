@@ -3,6 +3,7 @@
 namespace Hackernews\Http\Controllers;
 
 use Exception;
+use Hackernews\Facade\PostFacade;
 use Hackernews\Facade\TestFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Hackernews\Logging\ApiLogger;
@@ -28,19 +29,23 @@ class TestController
         try {
             ApiLogger::Instance()->logEndpointEvent("info", $request);
 
-            $facade = new TestFacade();
-            $request = $facade->refactorInitialRequest($request);
-            $request = $facade->addTokenToHeader($request, $response);
+            $testFacade = new TestFacade();
+            $postFacade = new PostFacade();
+
+            $postFacade->createStory(
+                $request->getAttribute('title'),
+                $request->getAttribute('content'),
+                $request->getAttribute('user_id')
+            );
+
+            $testFacade->updateHanesstId($request->getAttribute('hanesst_id'));
+
+            return $response;
+
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus($e->getCode())->withJson(ResponseHandler::error($e));
         }
-
-        $facade->persistHanesstId($request, $response);
-        $result = $facade->postRequest($request, $response);
-
-        return $response->withJson(ResponseHandler::success($result));
-
     }
 
     /**
@@ -53,10 +58,9 @@ class TestController
         try {
             ApiLogger::Instance()->logEndpointEvent("info", $request);
 
-            $facade = new TestFacade();
-            $hannest = $facade->latestHanesst($request, $response);
+            $testFacade = new TestFacade();
 
-            return $response->withHeader("Content-Type", "text/plain")->write($hannest->getHanesstId());
+            return $response->withHeader("Content-Type", "text/plain")->write($testFacade->getHanesstId());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withJson(ResponseHandler::error($e));

@@ -10,6 +10,7 @@ use Hackernews\Logging\ApiLogger;
 use Hackernews\Logging\ExceptionLogger;
 use Hackernews\Logging\UserLogger;
 use Hackernews\Services\TokenService;
+use PDOException;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -40,6 +41,9 @@ class AuthController
 
             UserLogger::Instance()->info("Login", ["email" => $email]);
             return $response->withJson(ResponseHandler::success($token));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(401)->withJson(ResponseHandler::error($e));
@@ -70,6 +74,9 @@ class AuthController
         } catch (DuplicateUserException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(409)->withJson(ResponseHandler::error($e));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));

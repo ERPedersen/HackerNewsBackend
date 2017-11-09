@@ -17,6 +17,7 @@ use Hackernews\Facade\CommentFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Hackernews\Logging\ApiLogger;
 use Hackernews\Logging\ExceptionLogger;
+use PDOException;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -48,6 +49,9 @@ class CommentController
             }
 
             return $response->withJson(ResponseHandler::success($comments), 200);
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -80,6 +84,9 @@ class CommentController
             }
 
             return $response->withStatus(200)->withJson(ResponseHandler::success($result));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -116,6 +123,9 @@ class CommentController
         } catch (WrongValueException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -151,6 +161,9 @@ class CommentController
         } catch (WrongValueException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));

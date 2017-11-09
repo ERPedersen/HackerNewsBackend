@@ -58,4 +58,20 @@ class ResponseHandler
 
         return $response;
     }
+
+    /**
+     * Forms a response from a custom error message
+     *
+     * @param $message
+     * @param $code
+     * @return stdClass
+     */
+    public static function dbError($message = null, $code = null)
+    {
+        $response = new stdClass();
+        $response->code = isset($message) ? $message : 'An unexpected error occurred';
+        $response->message = isset($code) ? $code : 1;
+
+        return $response;
+    }
 }
