@@ -213,27 +213,39 @@ class CommentAccess implements ICommentAccess
      */
     public function getVote(int $userRef, int $commentRef)
     {
-        $stmt = DB::conn()->prepare("SELECT user_ref, comment_ref, val FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :post_ref");
-        $stmt->execute([
-            "user_ref" => $userRef,
-            "post_ref" => $commentRef
-        ]);
+        try {
 
-        // There is no previous upvote or downvote from the user so one has to be made.
-        if ($stmt->rowCount() == 0) {
-            return 0;
-        }
 
-        $row = $stmt->fetch();
-        $val = $row['val'];
+            $stmt = DB::conn()->prepare("SELECT user_ref, comment_ref, val FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :post_ref");
+            $stmt->execute([
+                "user_ref" => $userRef,
+                "post_ref" => $commentRef
+            ]);
 
-        // If val is one, there is already an upvote and therefore it needs to be removed.
-        // If val is -1 a downvote exists and needs to be changed to an upvote.
-        if ($val == 1 || $val == -1) {
-            return ($val);
-        } else {
-            // Should never happen.
-            throw new WrongValueException("Value must be 1 or -1");
+            // There is no previous upvote or downvote from the user so one has to be made.
+            if ($stmt->rowCount() == 0) {
+                return 0;
+            }
+
+            $row = $stmt->fetch();
+            $val = $row['val'];
+
+            // If val is one, there is already an upvote and therefore it needs to be removed.
+            // If val is -1 a downvote exists and needs to be changed to an upvote.
+            if ($val == 1 || $val == -1) {
+                return ($val);
+            } else {
+                // Should never happen.
+                throw new WrongValueException("Value must be 1 or -1");
+            }
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'user_ref')) {
+                throw new NoUserException("The User doesn't exists!");
+            } else if ($e->errorInfo[1] == 1452 && strpos($e->errorInfo[2], 'comment_ref')) {
+                throw new NoCommentsException("The Comment doesn't exists!");
+            } else {
+                throw $e;
+            }
         }
     }
 
@@ -247,8 +259,10 @@ class CommentAccess implements ICommentAccess
     public function addUpvote(int $userRef, int $commentRef)
     {
         try {
+            $stmt = DB::conn();
+
             // Inserts a new upvote into the junction table in the database.
-            DB::conn()->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
+            $stmt->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef,
                 "val" => 1
@@ -276,8 +290,10 @@ class CommentAccess implements ICommentAccess
     public function addDownvote(int $userRef, int $commentRef)
     {
         try {
+            $stmt = DB::conn();
+
             // Inserts a new upvote into the junction table in the database.
-            DB::conn()->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
+            $stmt->prepare("INSERT INTO votes_users_comments (user_ref, comment_ref, val) VALUES (:user_ref, :comment_ref, :val)")->execute([
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef,
                 "val" => -1
@@ -305,8 +321,10 @@ class CommentAccess implements ICommentAccess
     public function removeUpVote(int $userRef, int $commentRef)
     {
         try {
+            $stmt = DB::conn();
+
             // Removes an upvote from the junction table in the database.
-            DB::conn()->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
+            $stmt->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
             ]);
@@ -333,8 +351,10 @@ class CommentAccess implements ICommentAccess
     public function removeDownvote(int $userRef, int $commentRef)
     {
         try {
+            $stmt = DB::conn();
+
             // Removes an downvote from the junction table in the database.
-            DB::conn()->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
+            $stmt->prepare("DELETE FROM votes_users_comments WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
             ]);
@@ -362,8 +382,10 @@ class CommentAccess implements ICommentAccess
     public function changeVote(int $userRef, int $commentRef, int $value)
     {
         try {
+            $stmt = DB::conn();
+
             // Updates a downvote into an upvote.
-            DB::conn()->prepare("UPDATE votes_users_comments SET val = :val WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
+            $stmt->prepare("UPDATE votes_users_comments SET val = :val WHERE user_ref = :user_ref AND comment_ref = :comment_ref")->execute([
                 "val" => $value,
                 "user_ref" => $userRef,
                 "comment_ref" => $commentRef
