@@ -25,6 +25,6 @@ class AdminController
 
         $alias = $request->getAttribute('user_alias');
 
-        return $response->withJson(ResponseHandler::success("Welcome ".$alias));
+        return $response->withJson(ResponseHandler::success("Welcome " . $alias));
     }
 }

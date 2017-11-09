@@ -27,12 +27,6 @@ interface IPostAccess
     public function getPostById(int $id, int $userRef);
 
     /**
-     * @param String $slug
-     * @return String
-     */
-    public function getUniqueSlug(String $slug);
-
-    /**
      * @param int $userRef
      * @param int $postRef
      * @return mixed

@@ -1,15 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: denni
- * Date: 11/4/2017
- * Time: 8:19 PM
- */
 
 namespace Hackernews\Http\Middleware;
 
-
-use Hackernews\Exceptions\WrongValueException;
+use Hackernews\Exceptions\MissingHanesstIdException;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -21,19 +14,37 @@ class ValidateTestPostValues
     {
         $json = $request->getParsedBody();
 
-        if(
-            isset($json['username']) &&
-            isset($json['post_type']) &&
-            isset($json['pwd_hash']) &&
-            isset($json['post_title']) &&
-            isset($json['post_parent']) &&
-            isset($json['hanesst_id']) &&
-            isset($json['post_text'])
-        ) {
+        try {
+
+            if (empty($json['hanesst_id'])) {
+                throw new MissingHanesstIdException("You must provide a hanesst_id", 4);
+            } else {
+                $hanesstId = $json['hanesst_id'];
+            }
+
+            $title = "This is a test";
+            $content = "This is a test";
+            $userId = 911121;
+
+            if (!empty($json['post_title'])) {
+                $title = $json['post_title'];
+            }
+
+            if (!empty($json['post_text'])) {
+                $content = $json['post_text'];
+            }
+
+            $request = $request->withAttributes([
+                "title" => $title,
+                "content" => $content,
+                "user_id" => $userId,
+                "hanesst_id" => $hanesstId
+            ]);
+
             return $next($request, $response);
-        } else {
-            return $response->withStatus(422)->withJson(ResponseHandler::error(new WrongValueException('Request format is invalid')));
+
+        } catch (MissingHanesstIdException $e) {
+            return $response->withJson(ResponseHandler::error($e));
         }
     }
-
 }

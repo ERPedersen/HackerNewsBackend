@@ -42,4 +42,8 @@ class DB
 
         return self::$pdo;
     }
+
+    public static function close() {
+        self::$pdo = null;
+    }
 }

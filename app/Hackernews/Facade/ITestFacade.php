@@ -13,31 +13,13 @@ use Slim\Http\Response;
  */
 interface ITestFacade
 {
-
     /**
-     * @param Request $request
-     * @return Request
+     * @param $hanesst_id
      */
-    public function refactorInitialRequest(Request $request): Request;
+    public function updateHanesstId($hanesst_id);
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @return Request
-     */
-    public function addTokenToHeader(Request $request, Response $response): Request;
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function postRequest(Request $request, Response $response): Response;
-
-    /**
-     * @param Request $request
-     * @param Response $response
      * @return Hanesst
      */
-    public function latestHanesst(Request $request, Response $response): Hanesst;
+    public function getHanesstId(): Hanesst;
 }

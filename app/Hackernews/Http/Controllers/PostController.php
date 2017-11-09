@@ -12,6 +12,7 @@ use Hackernews\Facade\PostFacade;
 use Hackernews\Http\Handlers\ResponseHandler;
 use Hackernews\Logging\ApiLogger;
 use Hackernews\Logging\ExceptionLogger;
+use PDOException;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -53,6 +54,9 @@ class PostController
         } catch (DuplicatePostException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'warning', $request);
             return $response->withStatus(409)->withJson(ResponseHandler::error($e));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -85,6 +89,9 @@ class PostController
         } catch (NoPostsException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(200)->withJson(ResponseHandler::success([]));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -119,6 +126,9 @@ class PostController
         } catch (NoPostsException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'notice', $request);
             return $response->withStatus(204);
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -153,6 +163,9 @@ class PostController
         } catch (WrongValueException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500);
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
@@ -187,6 +200,9 @@ class PostController
         } catch (WrongValueException $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
+        } catch (PDOException $e) {
+            ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
+            return $response->withStatus(500)->withJson(ResponseHandler::dbError());
         } catch (Exception $e) {
             ExceptionLogger::Instance()->logEndpointException($e, 'error', $request);
             return $response->withStatus(500)->withJson(ResponseHandler::error($e));
