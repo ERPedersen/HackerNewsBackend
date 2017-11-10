@@ -45,11 +45,9 @@ class TestFacade implements ITestFacade
     }
 
     /**
-     * @return Hanesst
-     * @internal param Request $request
-     * @internal param Response $response
+     * @return int
      */
-    public function getHanesstId(): Hanesst
+    public function getHanesstId(): int
     {
         return $this->access->getHanesstId()->getHanesstId();
     }
