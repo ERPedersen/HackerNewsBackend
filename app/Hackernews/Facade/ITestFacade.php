@@ -19,7 +19,7 @@ interface ITestFacade
     public function updateHanesstId($hanesst_id);
 
     /**
-     * @return Hanesst
+     * @return int
      */
-    public function getHanesstId(): Hanesst;
+    public function getHanesstId(): int;
 }
