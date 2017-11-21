@@ -1,6 +1,6 @@
 # Assignment 10: Scaling
 
-by 
+by: 
 
 - Dennis Michaelsen
 
