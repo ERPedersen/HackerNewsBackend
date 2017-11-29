@@ -217,17 +217,17 @@ class PostAccess implements IPostAccess
     }
 
     /**
-     * Fetches all posts
-     *
-     * @param int $limit
-     * @param int $page
+     * @param $limit
+     * @param $lastId
      * @param int $userRef
      * @return array
      */
-    public function getPosts($limit, $page, int $userRef)
+    public function getPosts($limit, $lastId, int $userRef)
     {
         $limit = $limit + 1;
-        $offset = ($limit - 1) * ($page - 1);
+        if ($lastId == -1) {
+            $lastId = PHP_INT_MAX;
+        }
 
         $stmt = DB::conn()->prepare("SELECT 
                                      p.id AS post_id, 
@@ -248,13 +248,13 @@ class PostAccess implements IPostAccess
                                      ON p.user_ref = u.id
                                      LEFT JOIN votes_users_posts v
                                      ON v.post_ref = p.id AND v.user_ref = :userRef
+                                     WHERE p.id < :lastId
                                      ORDER BY p.created_at DESC
-                                     LIMIT :limit_amount
-                                     OFFSET :offset_amount");
+                                     LIMIT :limit_amount");
 
         $stmt->execute([
             'limit_amount' => $limit,
-            'offset_amount' => $offset,
+            'lastId' => $lastId,
             'userRef' => $userRef
         ]);
 
@@ -288,13 +288,16 @@ class PostAccess implements IPostAccess
 
         if (count($results) == $limit) {
             $hasMore = true;
+            $lastId = $results[$limit - 2]->getId();
             array_pop($results);
         } else {
+            $lastId = 0;
             $hasMore = false;
         }
 
         return [
             'has_more' => $hasMore,
+            'last_id' => $lastId,
             'posts' => $results
         ];
     }
