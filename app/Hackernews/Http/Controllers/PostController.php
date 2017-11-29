@@ -63,16 +63,17 @@ class PostController
     {
 
         $limit = $request->getParam('limit');
-        $page = $request->getParam('page');
+        $lastShownId = $request->getParam('page');
         $userRef = $request->getAttribute("user_id");
+
 
         try {
             $postFacade = new PostFacade();
 
-            if ($limit && $page) {
-                $result = $postFacade->getPosts($limit, $page, $userRef);
+            if ($limit && $lastShownId) {
+                $result = $postFacade->getPosts($limit, $lastShownId, $userRef);
             } else {
-                $result = $postFacade->getPosts(5, 1, $userRef);
+                $result = $postFacade->getPosts(5, -1, $userRef);
             }
 
             return $response->withJson(ResponseHandler::success($result));

@@ -84,7 +84,7 @@ class PostFacade implements IPostFacade
      * @param int $userRef
      * @return mixed
      */
-    public function getPosts($limit = 5, $page = 1, int $userRef)
+    public function getPosts($limit, $page, int $userRef)
     {
         return $this->access->getPosts($limit, $page, $userRef);
     }
