@@ -74,15 +74,15 @@ class PostController
             ApiLogger::Instance()->logEndpointEvent("info", $request);
 
             $limit = $request->getParam('limit');
-            $page = $request->getParam('page');
+            $lastId = $request->getParam('page');
             $userRef = $request->getAttribute("user_id");
 
             $postFacade = new PostFacade();
 
-            if ($limit && $page) {
-                $result = $postFacade->getPosts($limit, $page, $userRef);
+            if ($limit && $lastId) {
+                $result = $postFacade->getPosts($limit, $lastId, $userRef);
             } else {
-                $result = $postFacade->getPosts(5, 1, $userRef);
+                $result = $postFacade->getPosts(5, -1, $userRef);
             }
 
             return $response->withJson(ResponseHandler::success($result));

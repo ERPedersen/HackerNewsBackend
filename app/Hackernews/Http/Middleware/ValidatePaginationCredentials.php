@@ -42,7 +42,7 @@ class ValidatePaginationCredentials
             array_push($errors, "Parameter 'limit' can only be used in conjunction with the 'page' parameter.");
         }
 
-        if (null !== $request->getParam('page') && $request->getParam('page') < 1) {
+        if (null !== $request->getParam('page') && $request->getParam('page') < -1) {
             array_push($errors, "Parameter 'page' must be at least 1");
         }
 
