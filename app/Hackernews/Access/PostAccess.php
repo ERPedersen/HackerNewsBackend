@@ -249,8 +249,8 @@ class PostAccess implements IPostAccess
                                      LEFT JOIN votes_users_posts v
                                      ON v.post_ref = p.id AND v.user_ref = :userRef
                                      WHERE p.id < :lastId
-                                     ORDER BY p.created_at DESC
-                                     LIMIT :limit_amount");
+                                     ORDER BY p.id DESC
+                                     LIMIT 0, :limit_amount");
 
         $stmt->execute([
             'limit_amount' => $limit,
